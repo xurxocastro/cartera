@@ -1,45 +1,46 @@
 const USERNAME = "jcastrlo";
 const AUTH_KEY = "cartera.auth.v2";
-const EXPENSES_KEY = "cartera.expenses.v2";
+const EXPENSES_KEY = "cartera.expenses.v3";
 const PORTFOLIO_URL = "data/portfolio.enc.json";
 const SESSION_DAYS = 365;
 
 const MONTH_NAMES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+const MONTH_SHORT = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
 
 const formatEUR = new Intl.NumberFormat("es-ES", { style: "currency", currency: "EUR", maximumFractionDigits: 0 });
 
 const SEED_DATA = [
-  {id:"2023-11",incomeNTT:1577,incomeVar:300,incomeNotes:"Regalos Navidad OpenAI+ Savings",revolut:1707,revSaved:0,otherBank:2434,cash:100,extras:"Trip to Madrid",saved:690},
-  {id:"2023-12",incomeNTT:2422,incomeVar:300,incomeNotes:"",revolut:1255,revSaved:0,otherBank:756,cash:70,extras:"Mucho tiempo en casa",saved:2156},
-  {id:"2024-01",incomeNTT:1577,incomeVar:0,incomeNotes:"",revolut:518,revSaved:0,otherBank:771,cash:100,extras:"Nueva tablet",saved:598},
-  {id:"2024-02",incomeNTT:1359,incomeVar:550,incomeNotes:"OpenAI + Marga",revolut:733,revSaved:0,otherBank:1736,cash:50,extras:"2k to save, (300 eur zara counted) (viaje cerdeña)",saved:520},
-  {id:"2024-03",incomeNTT:1384,incomeVar:1300,incomeNotes:"cumple abuela",revolut:1161,revSaved:0,otherBank:574,cash:70,extras:"100 euros ropa",saved:2684},
-  {id:"2024-04",incomeNTT:1461,incomeVar:0,incomeNotes:"",revolut:488,revSaved:0,otherBank:1723,cash:70,extras:"",saved:0},
-  {id:"2024-05",incomeNTT:1455,incomeVar:350,incomeNotes:"",revolut:214,revSaved:0,otherBank:2936,cash:115,extras:"1900 eur saved and monitor+table",saved:1900},
-  {id:"2024-06",incomeNTT:1444,incomeVar:300,incomeNotes:"",revolut:708,revSaved:0,otherBank:877,cash:110,extras:"pixel, fianza piso y mes julio",saved:0},
-  {id:"2024-07",incomeNTT:1414,incomeVar:400,incomeNotes:"Hacienda",revolut:383,revSaved:0,otherBank:2200,cash:60,extras:"ikea, chanclas, viaje Japón pagado",saved:2200},
-  {id:"2024-08",incomeNTT:1414,incomeVar:0,incomeNotes:"",revolut:162,revSaved:0,otherBank:680,cash:5,extras:"",saved:0},
-  {id:"2024-09",incomeNTT:1389,incomeVar:0,incomeNotes:"Açores",revolut:297,revSaved:0,otherBank:586,cash:50,extras:"Trip to açores, vino ana",saved:0},
-  {id:"2024-10",incomeNTT:1587,incomeVar:0,incomeNotes:"",revolut:72,revSaved:0,otherBank:1107,cash:50,extras:"Mac 1180",saved:-650},
-  {id:"2024-11",incomeNTT:1617,incomeVar:0,incomeNotes:"",revolut:221,revSaved:0,otherBank:1042,cash:50,extras:"Plane to China",saved:300},
-  {id:"2024-12",incomeNTT:1630,incomeVar:50,incomeNotes:"",revolut:207,revSaved:0,otherBank:1095,cash:40,extras:"Hotels china + Party",saved:1600},
-  {id:"2025-01",incomeNTT:2965,incomeVar:700,incomeNotes:"Abuela",revolut:316,revSaved:0,otherBank:1568,cash:40,extras:"2k to stocks (unfreezed 1.4k), 250€ zara, china trip",saved:600},
-  {id:"2025-02",incomeNTT:1656,incomeVar:0,incomeNotes:"",revolut:500,revSaved:0,otherBank:1363,cash:50,extras:"1.1k maldives plane ticket, 100eur erasmus",saved:0},
-  {id:"2025-03",incomeNTT:1628,incomeVar:1000,incomeNotes:"Abuela",revolut:282,revSaved:0,otherBank:180,cash:50,extras:"",saved:400},
-  {id:"2025-04",incomeNTT:1551,incomeVar:0,incomeNotes:"",revolut:300,revSaved:906,otherBank:117,cash:200,extras:"Viaje nieve + RD",saved:0},
-  {id:"2025-05",incomeNTT:1576,incomeVar:0,incomeNotes:"",revolut:514,revSaved:806,otherBank:800,cash:200,extras:"Compra BRK",saved:1000},
-  {id:"2025-06",incomeNTT:1577,incomeVar:0,incomeNotes:"",revolut:70,revSaved:807,otherBank:650,cash:200,extras:"1000 saved BRK",saved:0},
-  {id:"2025-07",incomeNTT:1577,incomeVar:0,incomeNotes:"",revolut:122,revSaved:256,otherBank:191,cash:200,extras:"Viaje marruecos",saved:0},
-  {id:"2025-08",incomeNTT:1552,incomeVar:1414,incomeNotes:"",revolut:998,revSaved:3250,otherBank:191,cash:200,extras:"Semana en marruecos, fianza (descontada), alquiler septiembre",saved:2250},
-  {id:"2025-09",incomeNTT:1510,incomeVar:0,incomeNotes:"",revolut:-237,revSaved:0,otherBank:38,cash:50,extras:"Alquiler ya estaba pagado, no hay gastos",saved:0},
-  {id:"2025-10",incomeNTT:1701,incomeVar:140,incomeNotes:"",revolut:-44,revSaved:0,otherBank:1119,cash:40,extras:"Libros + Zapatos + cenas",saved:1080},
-  {id:"2025-11",incomeNTT:1711,incomeVar:50,incomeNotes:"",revolut:105,revSaved:1080,otherBank:408,cash:50,extras:"Black Friday",saved:null},
-  {id:"2025-12",incomeNTT:1684,incomeVar:0,incomeNotes:"",revolut:1039,revSaved:0,otherBank:60,cash:50,extras:"Viajes con padres",saved:null},
-  {id:"2026-01",incomeNTT:3536,incomeVar:50,incomeNotes:"Abuela",revolut:195,revSaved:3233,otherBank:704,cash:50,extras:"renove armario zara + cascos+móvil",saved:3200},
-  {id:"2026-02",incomeNTT:1683,incomeVar:0,incomeNotes:"",revolut:337,revSaved:1452,otherBank:171,cash:200,extras:"Serbia",saved:null},
-  {id:"2026-03",incomeNTT:1634,incomeVar:0,incomeNotes:"",revolut:337,revSaved:1452,otherBank:171,cash:200,extras:"Texas + pauliña + compras como un animal",saved:null},
-  {id:"2026-04",incomeNTT:1685,incomeVar:0,incomeNotes:"",revolut:42,revSaved:395,otherBank:497,cash:100,extras:"",saved:null},
-  {id:"2026-05",incomeNTT:1681,incomeVar:0,incomeNotes:"",revolut:0,revSaved:0,otherBank:484,cash:100,extras:"",saved:null}
+  {id:"2023-11",incomeNTT:1577,incomeVar:300,incomeNotes:"Regalos Navidad OpenAI+ Savings",revolut:1707,revSaved:0,otherBank:2434,cash:100,extras:"Trip to Madrid",saved:690,spent:1187},
+  {id:"2023-12",incomeNTT:2422,incomeVar:300,incomeNotes:"",revolut:1255,revSaved:0,otherBank:756,cash:70,extras:"Mucho tiempo en casa",saved:2156,spent:566},
+  {id:"2024-01",incomeNTT:1577,incomeVar:0,incomeNotes:"",revolut:518,revSaved:0,otherBank:771,cash:100,extras:"Nueva tablet",saved:598,spent:979},
+  {id:"2024-02",incomeNTT:1359,incomeVar:550,incomeNotes:"OpenAI + Marga",revolut:733,revSaved:0,otherBank:1736,cash:50,extras:"2k to save, (300 eur zara counted) (viaje cerdeña)",saved:520,spent:1389},
+  {id:"2024-03",incomeNTT:1384,incomeVar:1300,incomeNotes:"cumple abuela",revolut:1161,revSaved:0,otherBank:574,cash:70,extras:"100 euros ropa",saved:2684,spent:985},
+  {id:"2024-04",incomeNTT:1461,incomeVar:0,incomeNotes:"",revolut:488,revSaved:0,otherBank:1723,cash:70,extras:"",saved:0,spent:821},
+  {id:"2024-05",incomeNTT:1455,incomeVar:350,incomeNotes:"",revolut:214,revSaved:0,otherBank:2936,cash:115,extras:"1900 eur saved and monitor+table",saved:1900,spent:1414},
+  {id:"2024-06",incomeNTT:1444,incomeVar:300,incomeNotes:"",revolut:708,revSaved:0,otherBank:877,cash:110,extras:"pixel, fianza piso y mes julio",saved:0,spent:1830},
+  {id:"2024-07",incomeNTT:1414,incomeVar:400,incomeNotes:"Hacienda",revolut:383,revSaved:0,otherBank:2200,cash:60,extras:"ikea, chanclas, viaje Japón pagado",saved:2200,spent:1010},
+  {id:"2024-08",incomeNTT:1414,incomeVar:0,incomeNotes:"",revolut:162,revSaved:0,otherBank:680,cash:5,extras:"",saved:0,spent:1353},
+  {id:"2024-09",incomeNTT:1389,incomeVar:0,incomeNotes:"Açores",revolut:297,revSaved:0,otherBank:586,cash:50,extras:"Trip to açores, vino ana",saved:0,spent:1291},
+  {id:"2024-10",incomeNTT:1587,incomeVar:0,incomeNotes:"",revolut:72,revSaved:0,otherBank:1107,cash:50,extras:"Mac 1180",saved:-650,spent:2183},
+  {id:"2024-11",incomeNTT:1617,incomeVar:0,incomeNotes:"",revolut:221,revSaved:0,otherBank:1042,cash:50,extras:"Plane to China",saved:300,spent:1641},
+  {id:"2024-12",incomeNTT:1630,incomeVar:50,incomeNotes:"",revolut:207,revSaved:0,otherBank:1095,cash:40,extras:"Hotels china + Party",saved:1600,spent:1483},
+  {id:"2025-01",incomeNTT:2965,incomeVar:700,incomeNotes:"Abuela",revolut:316,revSaved:0,otherBank:1568,cash:40,extras:"2k to stocks (unfreezed 1.4k), 250€ zara, china trip",saved:600,spent:1536},
+  {id:"2025-02",incomeNTT:1656,incomeVar:0,incomeNotes:"",revolut:500,revSaved:0,otherBank:1363,cash:50,extras:"1.1k maldives plane ticket, 100eur erasmus",saved:0,spent:2391},
+  {id:"2025-03",incomeNTT:1628,incomeVar:1000,incomeNotes:"Abuela",revolut:282,revSaved:0,otherBank:180,cash:50,extras:"",saved:400,spent:1046},
+  {id:"2025-04",incomeNTT:1551,incomeVar:0,incomeNotes:"",revolut:300,revSaved:906,otherBank:117,cash:200,extras:"Viaje nieve + RD",saved:0,spent:700},
+  {id:"2025-05",incomeNTT:1576,incomeVar:0,incomeNotes:"",revolut:514,revSaved:806,otherBank:800,cash:200,extras:"Compra BRK",saved:1000,spent:1171},
+  {id:"2025-06",incomeNTT:1577,incomeVar:0,incomeNotes:"",revolut:70,revSaved:807,otherBank:650,cash:200,extras:"1000 saved BRK",saved:0,spent:984},
+  {id:"2025-07",incomeNTT:1577,incomeVar:0,incomeNotes:"",revolut:122,revSaved:256,otherBank:191,cash:200,extras:"Viaje marruecos",saved:0,spent:960},
+  {id:"2025-08",incomeNTT:1552,incomeVar:1414,incomeNotes:"",revolut:998,revSaved:3250,otherBank:191,cash:200,extras:"Semana en marruecos, fianza (descontada), alquiler septiembre",saved:2250,spent:800},
+  {id:"2025-09",incomeNTT:1510,incomeVar:0,incomeNotes:"",revolut:-237,revSaved:0,otherBank:38,cash:50,extras:"Alquiler ya estaba pagado, no hay gastos",saved:0,spent:510},
+  {id:"2025-10",incomeNTT:1701,incomeVar:140,incomeNotes:"",revolut:-44,revSaved:0,otherBank:1119,cash:40,extras:"Libros + Zapatos + cenas",saved:1080,spent:1053},
+  {id:"2025-11",incomeNTT:1711,incomeVar:50,incomeNotes:"",revolut:105,revSaved:1080,otherBank:408,cash:50,extras:"Black Friday",saved:null,spent:1098},
+  {id:"2025-12",incomeNTT:1684,incomeVar:0,incomeNotes:"",revolut:1039,revSaved:0,otherBank:60,cash:50,extras:"Viajes con padres",saved:null,spent:550},
+  {id:"2026-01",incomeNTT:3536,incomeVar:50,incomeNotes:"Abuela",revolut:195,revSaved:3233,otherBank:704,cash:50,extras:"renove armario zara + cascos+móvil",saved:3200,spent:2411},
+  {id:"2026-02",incomeNTT:1683,incomeVar:0,incomeNotes:"",revolut:337,revSaved:1452,otherBank:171,cash:200,extras:"Serbia",saved:null,spent:1683},
+  {id:"2026-03",incomeNTT:1634,incomeVar:0,incomeNotes:"",revolut:337,revSaved:1452,otherBank:171,cash:200,extras:"Texas + pauliña + compras como un animal",saved:null,spent:1754},
+  {id:"2026-04",incomeNTT:1685,incomeVar:0,incomeNotes:"",revolut:42,revSaved:395,otherBank:497,cash:100,extras:"",saved:null,spent:1736},
+  {id:"2026-05",incomeNTT:1681,incomeVar:0,incomeNotes:"",revolut:0,revSaved:0,otherBank:484,cash:100,extras:"",saved:null,spent:null}
 ];
 
 const state = { keyBase64: "", entries: [], editing: null };
@@ -68,6 +69,7 @@ function cacheElements() {
   els.avgIncome = document.getElementById("avgIncome");
   els.avgSpent = document.getElementById("avgSpent");
   els.totalSaved = document.getElementById("totalSaved");
+  els.chartArea = document.getElementById("chartArea");
   els.expensesBody = document.getElementById("expensesBody");
   els.addMonthButton = document.getElementById("addMonthButton");
   els.expenseDialog = document.getElementById("expenseDialog");
@@ -82,6 +84,7 @@ function cacheElements() {
   els.expenseRevSaved = document.getElementById("expenseRevSaved");
   els.expenseOtherBank = document.getElementById("expenseOtherBank");
   els.expenseCash = document.getElementById("expenseCash");
+  els.expenseSpent = document.getElementById("expenseSpent");
   els.expenseExtras = document.getElementById("expenseExtras");
   els.expenseSaved = document.getElementById("expenseSaved");
   els.deleteExpenseButton = document.getElementById("deleteExpenseButton");
@@ -172,20 +175,16 @@ async function persistExpenses() {
 function render() {
   const rows = enrichAll(state.entries);
   renderSummary(rows);
+  renderChart(rows);
   renderTable(rows);
 }
 
 function enrichAll(entries) {
   const sorted = [...entries].sort((a, b) => a.id.localeCompare(b.id));
-  return sorted.map((e, i) => {
+  return sorted.map((e) => {
     const liquidity = n(e.revolut) + n(e.revSaved) + n(e.otherBank) + n(e.cash);
     const incomeTotal = n(e.incomeNTT) + n(e.incomeVar);
-    const prevLiquidity = i > 0 ? n(sorted[i-1].revolut) + n(sorted[i-1].revSaved) + n(sorted[i-1].otherBank) + n(sorted[i-1].cash) : null;
-    const saved = e.saved;
-    let spent = null;
-    if (prevLiquidity !== null && saved !== null) {
-      spent = prevLiquidity - liquidity + incomeTotal - n(saved);
-    }
+    const spent = e.spent;
     return { ...e, liquidity, incomeTotal, spent, _label: formatMonthLabel(e.id) };
   });
 }
@@ -200,9 +199,33 @@ function renderSummary(rows) {
   const spentValues = rows.map(r => r.spent).filter(v => v !== null && v > 0);
   els.avgSpent.textContent = spentValues.length ? formatEUR.format(avg(spentValues)) : "--";
 
-  const savedValues = rows.map(r => n(r.saved)).filter(v => v !== 0);
   const totalSaved = rows.reduce((sum, r) => sum + n(r.saved), 0);
   els.totalSaved.textContent = formatEUR.format(totalSaved);
+}
+
+function renderChart(rows) {
+  const chartRows = rows.filter(r => r.incomeTotal > 0 || (r.spent !== null && r.spent > 0));
+  const maxVal = Math.max(...chartRows.map(r => Math.max(r.incomeTotal, n(r.spent))), 1);
+
+  els.chartArea.innerHTML = chartRows.map(r => {
+    const [y, m] = r.id.split("-").map(Number);
+    const label = `${MONTH_SHORT[m - 1]} ${String(y).slice(2)}`;
+    const incomePct = (r.incomeTotal / maxVal) * 100;
+    const spentPct = r.spent !== null ? (r.spent / maxVal) * 100 : 0;
+    const spentBar = r.spent !== null
+      ? `<div class="chart-bar bar-spent" style="height:${spentPct}%" title="Gastos: ${formatEUR.format(r.spent)}"></div>`
+      : `<div class="chart-bar bar-spent bar-empty" style="height:0%" title="Sin datos"></div>`;
+
+    return `
+      <div class="chart-col">
+        <div class="chart-bars">
+          <div class="chart-bar bar-income" style="height:${incomePct}%" title="Ingresos: ${formatEUR.format(r.incomeTotal)}"></div>
+          ${spentBar}
+        </div>
+        <span class="chart-label">${label}</span>
+      </div>
+    `;
+  }).join("");
 }
 
 function renderTable(rows) {
@@ -266,6 +289,7 @@ function openEditor(id) {
   els.expenseRevSaved.value = entry?.revSaved ?? "";
   els.expenseOtherBank.value = entry?.otherBank ?? "";
   els.expenseCash.value = entry?.cash ?? "";
+  els.expenseSpent.value = entry?.spent ?? "";
   els.expenseExtras.value = entry?.extras ?? "";
   els.expenseSaved.value = entry?.saved ?? "";
 
@@ -289,6 +313,7 @@ async function saveExpense(event) {
     revSaved: parseNum(els.expenseRevSaved.value),
     otherBank: parseNum(els.expenseOtherBank.value),
     cash: parseNum(els.expenseCash.value),
+    spent: els.expenseSpent.value.trim() === "" ? null : parseNum(els.expenseSpent.value),
     extras: els.expenseExtras.value.trim(),
     saved: els.expenseSaved.value.trim() === "" ? null : parseNum(els.expenseSaved.value)
   };

@@ -600,6 +600,97 @@ tbody tr:last-child td {
   margin-top: 0;
 }
 
+/* ── Chart ─────────────────────────────────────────────────── */
+
+.chart-panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+  padding: 18px;
+  margin-bottom: 18px;
+}
+
+.chart-legend {
+  display: flex;
+  gap: 16px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.chart-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chart-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.chart-scroll {
+  overflow-x: auto;
+  margin-top: 12px;
+  padding-bottom: 4px;
+}
+
+.chart-area {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  min-height: 180px;
+  min-width: max-content;
+}
+
+.chart-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 36px;
+  flex: 1;
+}
+
+.chart-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 160px;
+  width: 100%;
+}
+
+.chart-bar {
+  flex: 1;
+  border-radius: 3px 3px 0 0;
+  min-height: 2px;
+  transition: height 0.3s ease;
+}
+
+.bar-income {
+  background: var(--blue);
+}
+
+.bar-spent {
+  background: var(--amber);
+}
+
+.bar-empty {
+  background: var(--soft-line);
+}
+
+.chart-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+/* ── Responsive ───────────────────────────────────────────── */
+
 @media (max-width: 1040px) {
   .summary-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -616,11 +707,26 @@ tbody tr:last-child td {
   }
 
   .topbar {
-    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .topbar > div:first-child {
+    width: 100%;
+    order: 1;
   }
 
   .topbar h1 {
-    font-size: 27px;
+    font-size: 24px;
+  }
+
+  .nav-tabs {
+    order: 2;
+  }
+
+  .topbar-actions {
+    order: 3;
+    margin-left: auto;
   }
 
   .status-strip {
@@ -629,20 +735,38 @@ tbody tr:last-child td {
   }
 
   .summary-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .metric-card {
-    min-height: 96px;
+    min-height: 88px;
+    padding: 14px;
   }
 
   .metric-card strong {
-    font-size: 27px;
+    font-size: 22px;
+  }
+
+  .chart-panel {
+    padding: 14px;
+  }
+
+  .chart-bars {
+    height: 120px;
   }
 
   .allocation-panel,
   .holdings-panel {
     padding: 14px;
+  }
+
+  .panel-heading {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .panel-heading h2 {
+    font-size: 18px;
   }
 
   .table-scroll {
@@ -704,6 +828,10 @@ tbody tr:last-child td {
 
   td.actions-cell::before {
     content: "";
+  }
+
+  .notes-cell {
+    max-width: none;
   }
 
   .form-grid {

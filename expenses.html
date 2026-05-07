@@ -76,6 +76,22 @@
         </article>
       </section>
 
+      <section class="chart-panel" aria-label="Gráfica ingresos vs gastos">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Evolución</p>
+            <h2>Ingresos vs Gastos</h2>
+          </div>
+          <div class="chart-legend">
+            <span class="chart-legend-item"><span class="chart-dot" style="background:var(--blue)"></span> Ingresos</span>
+            <span class="chart-legend-item"><span class="chart-dot" style="background:var(--amber)"></span> Gastos</span>
+          </div>
+        </div>
+        <div class="chart-scroll">
+          <div class="chart-area" id="chartArea"></div>
+        </div>
+      </section>
+
       <section class="holdings-panel" aria-labelledby="expensesTitle">
         <div class="panel-heading">
           <div>
@@ -161,12 +177,16 @@
             <input id="expenseCash" inputmode="decimal" autocomplete="off" placeholder="Saldo">
           </label>
           <label>
-            Extras
-            <input id="expenseExtras" autocomplete="off" placeholder="Gastos destacados">
+            Gastado
+            <input id="expenseSpent" inputmode="decimal" autocomplete="off" placeholder="Ej. 1200">
           </label>
           <label>
             Ahorrado
             <input id="expenseSaved" inputmode="decimal" autocomplete="off" placeholder="Ej. 500">
+          </label>
+          <label>
+            Extras
+            <input id="expenseExtras" autocomplete="off" placeholder="Gastos destacados">
           </label>
         </div>
 

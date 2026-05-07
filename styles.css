@@ -352,10 +352,15 @@ p {
 }
 
 .portfolio-grid {
-  display: grid;
-  grid-template-columns: minmax(300px, 390px) minmax(0, 1fr);
+  display: flex;
+  flex-direction: column;
   gap: 18px;
-  align-items: start;
+}
+
+.sidebar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 18px;
 }
 
 .allocation-panel,
@@ -704,7 +709,8 @@ tbody tr:last-child td {
   }
 
   .portfolio-grid {
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
   }
 }
 

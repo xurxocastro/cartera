@@ -639,11 +639,8 @@ tbody tr:last-child td {
 }
 
 .chart-area {
-  display: flex;
-  align-items: flex-end;
-  gap: 4px;
+  display: block;
   min-height: 180px;
-  min-width: max-content;
 }
 
 .chart-col {

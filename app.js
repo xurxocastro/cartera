@@ -334,18 +334,23 @@ function renderStatus() {
 }
 
 function renderDonut(rows, total) {
-  let cursor = 0;
+  let cumulativePct = 0;
   const slices = rows.map((row, index) => {
     const pct = total > 0 ? (row.valueEUR / total) * 100 : 0;
-    const start = cursor;
-    const end = cursor + pct;
-    cursor = end;
-    return `${COLORS[index % COLORS.length]} ${start}% ${end}%`;
+    if (pct === 0) return "";
+    
+    const offset = 25 - cumulativePct;
+    cumulativePct += pct;
+    
+    return `<circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="${COLORS[index % COLORS.length]}" stroke-width="8" stroke-dasharray="${pct} ${100 - pct}" stroke-dashoffset="${offset}"><title>${escapeHtml(row.name)}: ${formatEUR.format(row.valueEUR)} (${formatPercent.format(pct / 100)})</title></circle>`;
   });
 
-  els.allocationDonut.style.background = slices.length
-    ? `conic-gradient(${slices.join(", ")})`
-    : "conic-gradient(#d9e1ea 0 100%)";
+  const svgHTML = slices.length 
+    ? `<svg viewBox="0 0 42 42" width="100%" height="100%">${slices.join("")}</svg>`
+    : `<svg viewBox="0 0 42 42" width="100%" height="100%"><circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#d9e1ea" stroke-width="8"></circle></svg>`;
+
+  els.allocationDonut.style.background = "none";
+  els.allocationDonut.innerHTML = svgHTML;
 
   els.allocationLegend.innerHTML = rows
     .map((row, index) => {
@@ -369,18 +374,23 @@ function renderContinentDonut(rows, total) {
     continents[c] = (continents[c] || 0) + row.valueEUR;
   }
   const entries = Object.entries(continents).sort((a,b) => b[1] - a[1]);
-  let cursor = 0;
+  let cumulativePct = 0;
   const slices = entries.map(([name, val], index) => {
     const pct = total > 0 ? (val / total) * 100 : 0;
-    const start = cursor;
-    const end = cursor + pct;
-    cursor = end;
-    return `${COLORS[index % COLORS.length]} ${start}% ${end}%`;
+    if (pct === 0) return "";
+    
+    const offset = 25 - cumulativePct;
+    cumulativePct += pct;
+    
+    return `<circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="${COLORS[index % COLORS.length]}" stroke-width="8" stroke-dasharray="${pct} ${100 - pct}" stroke-dashoffset="${offset}"><title>${escapeHtml(name)}: ${formatEUR.format(val)} (${formatPercent.format(pct / 100)})</title></circle>`;
   });
 
-  els.continentDonut.style.background = slices.length
-    ? `conic-gradient(${slices.join(", ")})`
-    : "conic-gradient(#d9e1ea 0 100%)";
+  const svgHTML = slices.length 
+    ? `<svg viewBox="0 0 42 42" width="100%" height="100%">${slices.join("")}</svg>`
+    : `<svg viewBox="0 0 42 42" width="100%" height="100%"><circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#d9e1ea" stroke-width="8"></circle></svg>`;
+
+  els.continentDonut.style.background = "none";
+  els.continentDonut.innerHTML = svgHTML;
 
   els.continentTotal.textContent = total ? formatEUR.format(total) : "--";
 

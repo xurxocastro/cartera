@@ -205,27 +205,61 @@ function renderSummary(rows) {
 
 function renderChart(rows) {
   const chartRows = rows.filter(r => r.incomeTotal > 0 || (r.spent !== null && r.spent > 0));
-  const maxVal = Math.max(...chartRows.map(r => Math.max(r.incomeTotal, n(r.spent))), 1);
+  if (chartRows.length === 0) {
+    els.chartArea.innerHTML = "";
+    return;
+  }
 
-  els.chartArea.innerHTML = chartRows.map(r => {
+  const maxVal = Math.max(...chartRows.map(r => Math.max(r.incomeTotal, n(r.spent))), 1);
+  
+  const width = Math.max(800, chartRows.length * 50);
+  const height = 180;
+  const padX = 30;
+  const padY = 20;
+  const graphW = width - padX * 2;
+  const graphH = height - padY * 2;
+  
+  const stepX = chartRows.length > 1 ? graphW / (chartRows.length - 1) : graphW;
+  
+  let incomePoints = "";
+  let spentPoints = "";
+  let circlesHTML = "";
+  let labelsHTML = "";
+
+  chartRows.forEach((r, i) => {
+    const x = padX + i * stepX;
+    const yIncome = padY + graphH - (r.incomeTotal / maxVal) * graphH;
+    
+    incomePoints += `${x},${yIncome} `;
+    circlesHTML += `<circle cx="${x}" cy="${yIncome}" r="4" fill="var(--panel)" stroke="var(--blue)" stroke-width="2"><title>${r._label} - Ingresos: ${formatEUR.format(r.incomeTotal)}</title></circle>`;
+    
+    if (r.spent !== null && r.spent > 0) {
+      const ySpent = padY + graphH - (r.spent / maxVal) * graphH;
+      spentPoints += `${x},${ySpent} `;
+      circlesHTML += `<circle cx="${x}" cy="${ySpent}" r="4" fill="var(--panel)" stroke="var(--amber)" stroke-width="2"><title>${r._label} - Gastos: ${formatEUR.format(r.spent)}</title></circle>`;
+    }
+    
     const [y, m] = r.id.split("-").map(Number);
     const label = `${MONTH_SHORT[m - 1]} ${String(y).slice(2)}`;
-    const incomePct = (r.incomeTotal / maxVal) * 100;
-    const spentPct = r.spent !== null ? (r.spent / maxVal) * 100 : 0;
-    const spentBar = r.spent !== null
-      ? `<div class="chart-bar bar-spent" style="height:${spentPct}%" title="Gastos: ${formatEUR.format(r.spent)}"></div>`
-      : `<div class="chart-bar bar-spent bar-empty" style="height:0%" title="Sin datos"></div>`;
+    
+    labelsHTML += `<text x="${x}" y="${height - 2}" text-anchor="middle" font-size="11" fill="var(--muted)" font-family="system-ui, sans-serif" font-weight="600">${label}</text>`;
+  });
 
-    return `
-      <div class="chart-col">
-        <div class="chart-bars">
-          <div class="chart-bar bar-income" style="height:${incomePct}%" title="Ingresos: ${formatEUR.format(r.incomeTotal)}"></div>
-          ${spentBar}
-        </div>
-        <span class="chart-label">${label}</span>
-      </div>
-    `;
-  }).join("");
+  const svg = `
+    <svg viewBox="0 0 ${width} ${height}" style="width: ${width}px; height: ${height}px; display: block; overflow: visible;">
+      <line x1="${padX}" y1="${padY}" x2="${width - padX}" y2="${padY}" stroke="var(--soft-line)" stroke-dasharray="4" />
+      <line x1="${padX}" y1="${padY + graphH/2}" x2="${width - padX}" y2="${padY + graphH/2}" stroke="var(--soft-line)" stroke-dasharray="4" />
+      <line x1="${padX}" y1="${padY + graphH}" x2="${width - padX}" y2="${padY + graphH}" stroke="var(--line)" />
+      
+      <polyline points="${incomePoints}" fill="none" stroke="var(--blue)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+      <polyline points="${spentPoints}" fill="none" stroke="var(--amber)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+      
+      ${circlesHTML}
+      ${labelsHTML}
+    </svg>
+  `;
+  
+  els.chartArea.innerHTML = svg;
 }
 
 function renderTable(rows) {

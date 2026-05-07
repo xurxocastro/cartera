@@ -226,7 +226,7 @@ p {
 .app-shell {
   width: min(1440px, 100%);
   margin: 0 auto;
-  padding: 24px;
+  padding: 24px 24px 0 24px;
 }
 
 .topbar {
@@ -311,7 +311,7 @@ p {
 }
 
 .app-footer {
-  margin-top: 64px;
+  margin-top: 24px;
   padding: 16px 24px;
   border-top: 1px solid var(--border);
   background: rgba(32, 33, 36, 0.6);

@@ -61,16 +61,20 @@ function cacheElements() {
   els.donutTotal = document.getElementById("donutTotal");
   els.allocationDonut = document.getElementById("allocationDonut");
   els.allocationLegend = document.getElementById("allocationLegend");
+  els.continentDonut = document.getElementById("continentDonut");
+  els.continentLegend = document.getElementById("continentLegend");
+  els.continentTotal = document.getElementById("continentTotal");
   els.holdingsBody = document.getElementById("holdingsBody");
   els.editDialog = document.getElementById("editDialog");
   els.assetForm = document.getElementById("assetForm");
   els.dialogTitle = document.getElementById("dialogTitle");
   els.assetId = document.getElementById("assetId");
-  els.quantityInput = document.getElementById("quantityInput");
-  els.averagePriceInput = document.getElementById("averagePriceInput");
-  els.buyDateInput = document.getElementById("buyDateInput");
+  els.continentInput = document.getElementById("continentInput");
+  els.countryInput = document.getElementById("countryInput");
   els.manualValueInput = document.getElementById("manualValueInput");
   els.quoteSymbolInput = document.getElementById("quoteSymbolInput");
+  els.lotsContainer = document.getElementById("lotsContainer");
+  els.addLotButton = document.getElementById("addLotButton");
   els.resetAssetButton = document.getElementById("resetAssetButton");
 }
 
@@ -81,6 +85,10 @@ function bindEvents() {
   els.holdingsBody.addEventListener("click", handleTableClick);
   els.assetForm.addEventListener("submit", saveAsset);
   els.resetAssetButton.addEventListener("click", resetAsset);
+  els.addLotButton.addEventListener("click", addLotRow);
+  els.lotsContainer.addEventListener("click", (e) => {
+    if (e.target.closest(".remove-lot")) e.target.closest(".lot-row").remove();
+  });
 }
 
 async function handleLogin(event) {
@@ -259,6 +267,7 @@ function render() {
   render30dChange(total);
   renderStatus();
   renderDonut(rows, total);
+  renderContinentDonut(rows, total);
   renderTable(rows, total);
 }
 
@@ -352,6 +361,43 @@ function renderDonut(rows, total) {
     .join("");
 }
 
+function renderContinentDonut(rows, total) {
+  const continents = {};
+  for (const row of rows) {
+    if (row.type === "cash" && !row.continent) continue;
+    const c = row.continent || "Desconocido";
+    continents[c] = (continents[c] || 0) + row.valueEUR;
+  }
+  const entries = Object.entries(continents).sort((a,b) => b[1] - a[1]);
+  let cursor = 0;
+  const slices = entries.map(([name, val], index) => {
+    const pct = total > 0 ? (val / total) * 100 : 0;
+    const start = cursor;
+    const end = cursor + pct;
+    cursor = end;
+    return `${COLORS[index % COLORS.length]} ${start}% ${end}%`;
+  });
+
+  els.continentDonut.style.background = slices.length
+    ? `conic-gradient(${slices.join(", ")})`
+    : "conic-gradient(#d9e1ea 0 100%)";
+
+  els.continentTotal.textContent = total ? formatEUR.format(total) : "--";
+
+  els.continentLegend.innerHTML = entries
+    .map(([name, val], index) => {
+      const pct = total > 0 ? val / total : 0;
+      return `
+        <div class="legend-item">
+          <span class="legend-color" style="background:${COLORS[index % COLORS.length]}"></span>
+          <span class="legend-name">${escapeHtml(name)}</span>
+          <span class="legend-value">${formatPercent.format(pct)}</span>
+        </div>
+      `;
+    })
+    .join("");
+}
+
 function renderTable(rows, total) {
   els.holdingsBody.innerHTML = rows
     .map((row) => {
@@ -372,6 +418,7 @@ function renderTable(rows, total) {
             </div>
           </td>
           <td data-label="Ticker"><span class="ticker-pill">${escapeHtml(row.ticker)}</span></td>
+          <td class="hide-mobile" data-label="País">${escapeHtml(row.country || row.continent || "—")}</td>
           <td data-label="Valor">
             <div class="value-cell">
               <strong>${formatEUR.format(row.valueEUR)}</strong>
@@ -387,7 +434,6 @@ function renderTable(rows, total) {
           <td data-label="Precio">${priceText}</td>
           <td data-label="Precio medio">${averageText}</td>
           <td data-label="Ganancia"><span class="${gainClass}">${gainText}</span></td>
-          <td data-label="Tiempo">${escapeHtml(row.holdingTime)}</td>
           <td class="actions-cell" data-label="">
             <button class="icon-button small" type="button" data-edit="${row.id}" title="Editar ${escapeHtml(row.name)}" aria-label="Editar ${escapeHtml(row.name)}">
               <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -406,30 +452,54 @@ function enrichAsset(asset, index = state.assets.findIndex((item) => item.id ===
   const quote = asset.type === "cash" ? null : getQuote(asset);
   const currentPrice = quote?.price ? quote.price / (asset.priceScale || 1) : null;
   const priceEUR = currentPrice === null ? null : convertToEUR(currentPrice, asset.currency);
-  const actualQuantity = safeNumber(asset.quantity, null);
+
+  const lots = Array.isArray(asset.lots) ? asset.lots : [];
+  let computedQuantity = null;
+  let computedCostNative = null;
+  let oldestDate = null;
+
+  if (lots.length > 0) {
+    computedQuantity = 0;
+    computedCostNative = 0;
+    for (const lot of lots) {
+      computedQuantity += safeNumber(lot.quantity, 0);
+      computedCostNative += safeNumber(lot.quantity, 0) * safeNumber(lot.price, 0);
+      if (lot.date && (!oldestDate || lot.date < oldestDate)) oldestDate = lot.date;
+    }
+  }
+
+  const actualQuantity = computedQuantity !== null && computedQuantity > 0 ? computedQuantity : safeNumber(asset.quantity, null);
   const estimatedQuantity = safeNumber(asset.estimatedQuantity, null);
   const activeQuantity = actualQuantity || estimatedQuantity;
+
   const valueEUR = asset.type === "cash"
     ? safeNumber(asset.manualValueEUR, 0)
     : activeQuantity && priceEUR
       ? activeQuantity * priceEUR
       : safeNumber(asset.manualValueEUR, 0);
+      
   const nativeValue = asset.currency === "EUR" ? valueEUR : convertFromEUR(valueEUR, asset.currency);
-  const averagePrice = safeNumber(asset.averagePrice, null);
+  
+  const averagePrice = computedQuantity !== null && computedQuantity > 0 
+    ? computedCostNative / computedQuantity 
+    : safeNumber(asset.averagePrice, null);
+    
   const averageEUR = averagePrice ? convertToEUR(averagePrice, asset.currency) : null;
   const costEUR = activeQuantity && averageEUR ? activeQuantity * averageEUR : null;
   const gainPct = costEUR ? (valueEUR - costEUR) / costEUR : null;
+  const buyDate = oldestDate || asset.buyDate || null;
 
   return {
     ...asset,
     quote,
     currentPrice,
-    nativeValue,
-    valueEUR,
     averagePrice,
+    valueEUR,
+    nativeValue,
     costEUR,
     gainPct,
-    holdingTime: formatHoldingTime(asset.buyDate),
+    buyDate,
+    holdingTime: buyDate ? formatHoldingTime(buyDate) : "—",
     priceDigits: asset.currency === "EUR" && currentPrice && currentPrice < 10 ? 3 : 2,
     color: COLORS[index % COLORS.length]
   };
@@ -475,19 +545,44 @@ function openEditor(id) {
 
   els.assetId.value = asset.id;
   els.dialogTitle.textContent = `${asset.name} (${asset.ticker})`;
-  els.quantityInput.value = asset.quantity ?? "";
-  els.averagePriceInput.value = asset.averagePrice ?? "";
-  els.buyDateInput.value = asset.buyDate || "";
+  els.continentInput.value = asset.continent || "";
+  els.countryInput.value = asset.country || "";
   els.manualValueInput.value = asset.manualValueEUR ?? "";
   els.quoteSymbolInput.value = asset.quoteSymbol || "";
 
+  els.lotsContainer.innerHTML = "";
+  const lots = Array.isArray(asset.lots) && asset.lots.length > 0 
+    ? asset.lots 
+    : (asset.quantity ? [{ quantity: asset.quantity, price: asset.averagePrice, date: asset.buyDate }] : []);
+    
+  for (const lot of lots) {
+    addLotRow(lot);
+  }
+
   const disabled = asset.type === "cash";
-  els.quantityInput.disabled = disabled;
-  els.averagePriceInput.disabled = disabled;
-  els.buyDateInput.disabled = disabled;
+  els.continentInput.disabled = disabled;
+  els.countryInput.disabled = disabled;
   els.quoteSymbolInput.disabled = disabled;
+  els.addLotButton.style.display = disabled ? "none" : "";
 
   els.editDialog.showModal();
+}
+
+function addLotRow(lot = {}) {
+  const div = document.createElement("div");
+  div.className = "lot-row";
+  div.innerHTML = `
+    <label>Cantidad <input type="number" step="any" class="lot-quantity" value="${lot.quantity || ''}"></label>
+    <label>Precio local <input type="number" step="any" class="lot-price" value="${lot.price || ''}"></label>
+    <label>Fecha <input type="date" class="lot-date" value="${lot.date || ''}"></label>
+    <button type="button" class="icon-button small remove-lot" title="Eliminar" aria-label="Eliminar">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M18 6 6 18"></path>
+        <path d="m6 6 12 12"></path>
+      </svg>
+    </button>
+  `;
+  els.lotsContainer.appendChild(div);
 }
 
 function saveAsset(event) {
@@ -498,11 +593,28 @@ function saveAsset(event) {
     return;
   }
 
-  asset.quantity = parseOptionalNumber(els.quantityInput.value);
-  asset.averagePrice = parseOptionalNumber(els.averagePriceInput.value);
-  asset.buyDate = els.buyDateInput.value || "";
+  asset.continent = els.continentInput.value;
+  asset.country = els.countryInput.value.trim();
   asset.manualValueEUR = parseOptionalNumber(els.manualValueInput.value) ?? asset.manualValueEUR;
   asset.quoteSymbol = els.quoteSymbolInput.value.trim().toUpperCase();
+
+  if (asset.type !== "cash") {
+    const lotRows = els.lotsContainer.querySelectorAll(".lot-row");
+    asset.lots = Array.from(lotRows).map(row => {
+      const q = parseOptionalNumber(row.querySelector(".lot-quantity").value);
+      const p = parseOptionalNumber(row.querySelector(".lot-price").value);
+      const d = row.querySelector(".lot-date").value || "";
+      if (q !== null && q > 0) {
+        return { quantity: q, price: p, date: d };
+      }
+      return null;
+    }).filter(Boolean);
+    
+    // Clear legacy fields to ensure enrichAsset computes from lots
+    asset.quantity = undefined;
+    asset.averagePrice = undefined;
+    asset.buyDate = undefined;
+  }
 
   saveAssets();
   els.editDialog.close();

@@ -93,22 +93,41 @@
       </section>
 
       <section class="portfolio-grid">
-        <section class="allocation-panel" aria-labelledby="allocationTitle">
-          <div class="panel-heading">
-            <div>
-              <p class="eyebrow">Distribución</p>
-              <h2 id="allocationTitle">Peso por activo</h2>
+        <aside class="sidebar">
+          <section class="allocation-panel" aria-labelledby="allocationTitle">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Distribución</p>
+                <h2 id="allocationTitle">Activo</h2>
+              </div>
             </div>
-          </div>
-          <div class="donut-wrap">
-            <div class="donut" id="allocationDonut" role="img" aria-label="Distribución de cartera"></div>
-            <div class="donut-center">
-              <span>Cartera</span>
-              <strong id="donutTotal">--</strong>
+            <div class="donut-wrap">
+              <div class="donut" id="allocationDonut" role="img" aria-label="Distribución por activo"></div>
+              <div class="donut-center">
+                <span>Total</span>
+                <strong id="donutTotal">--</strong>
+              </div>
             </div>
-          </div>
-          <div class="legend-list" id="allocationLegend"></div>
-        </section>
+            <div class="legend-list" id="allocationLegend"></div>
+          </section>
+
+          <section class="allocation-panel" aria-labelledby="continentTitle">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Distribución</p>
+                <h2 id="continentTitle">Continente</h2>
+              </div>
+            </div>
+            <div class="donut-wrap">
+              <div class="donut" id="continentDonut" role="img" aria-label="Distribución por continente"></div>
+              <div class="donut-center">
+                <span>Total</span>
+                <strong id="continentTotal">--</strong>
+              </div>
+            </div>
+            <div class="legend-list" id="continentLegend"></div>
+          </section>
+        </aside>
 
         <section class="holdings-panel" aria-labelledby="holdingsTitle">
           <div class="panel-heading">
@@ -124,12 +143,12 @@
                 <tr>
                   <th>Activo</th>
                   <th>Ticker</th>
+                  <th class="hide-mobile">País</th>
                   <th>Valor</th>
                   <th>Peso</th>
                   <th>Precio</th>
                   <th>Precio medio</th>
                   <th>Ganancia</th>
-                  <th>Tiempo</th>
                   <th></th>
                 </tr>
               </thead>
@@ -160,25 +179,37 @@
         <input type="hidden" id="assetId">
         <div class="form-grid">
           <label>
-            Unidades
-            <input id="quantityInput" inputmode="decimal" autocomplete="off" placeholder="Ej. 12,5">
+            Continente
+            <select id="continentInput">
+              <option value="">Ninguno</option>
+              <option value="Norteamérica">Norteamérica</option>
+              <option value="Europa">Europa</option>
+              <option value="Asia">Asia</option>
+              <option value="Latinoamérica">Latinoamérica</option>
+              <option value="Oceanía">Oceanía</option>
+              <option value="África">África</option>
+            </select>
           </label>
           <label>
-            Precio medio
-            <input id="averagePriceInput" inputmode="decimal" autocomplete="off" placeholder="Por acción">
-          </label>
-          <label>
-            Fecha de compra
-            <input id="buyDateInput" type="date">
-          </label>
-          <label>
-            Valor manual en EUR
-            <input id="manualValueInput" inputmode="decimal" autocomplete="off" required>
+            País
+            <input id="countryInput" autocomplete="off" placeholder="Ej. EE. UU.">
           </label>
           <label>
             Símbolo fuente
             <input id="quoteSymbolInput" autocomplete="off">
           </label>
+          <label>
+            Valor manual en EUR (Efectivo)
+            <input id="manualValueInput" inputmode="decimal" autocomplete="off" required>
+          </label>
+        </div>
+        
+        <div class="lots-section">
+          <div class="lots-header">
+            <h3>Lotes de compra</h3>
+            <button type="button" class="ghost-button small" id="addLotButton">+ Añadir</button>
+          </div>
+          <div class="lots-list" id="lotsContainer"></div>
         </div>
 
         <div class="dialog-actions">

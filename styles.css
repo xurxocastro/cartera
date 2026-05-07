@@ -847,3 +847,87 @@ tbody tr:last-child td {
     width: 100%;
   }
 }
+
+/* ── Sidebar & Charts ───────────────────────────────────────── */
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.lots-section {
+  margin-top: 24px;
+  border-top: 1px solid var(--line);
+  padding-top: 18px;
+}
+
+.lots-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.lots-header h3 {
+  font-size: 14px;
+  color: var(--fg);
+  margin: 0;
+}
+
+.lots-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.lot-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.5fr auto;
+  gap: 8px;
+  align-items: end;
+  background: var(--bg);
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid var(--soft-line);
+}
+
+.lot-row label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.lot-row input {
+  background: var(--panel);
+  border: 1px solid var(--soft-line);
+  color: var(--fg);
+  border-radius: 4px;
+  padding: 6px 8px;
+  font-size: 13px;
+  width: 100%;
+  outline: none;
+}
+.lot-row input:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(138, 180, 248, 0.15);
+}
+
+.form-grid select {
+  background: var(--bg);
+  border: 1px solid var(--soft-line);
+  color: var(--fg);
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  width: 100%;
+}
+.form-grid select:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(138, 180, 248, 0.15);
+}
+

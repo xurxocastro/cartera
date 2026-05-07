@@ -3,6 +3,7 @@ const AUTH_KEY = "cartera.auth.v2";
 const PORTFOLIO_KEY = "cartera.local-overrides.v2";
 const PORTFOLIO_URL = "data/portfolio.enc.json";
 const QUOTES_URL = "data/quotes.enc.json";
+const SNAPSHOTS_KEY = "cartera.snapshots.v1";
 const SESSION_DAYS = 365;
 
 const COLORS = ["#0f766e", "#2563eb", "#b45309", "#7c3aed", "#15803d", "#c2410c", "#0e7490", "#475569"];
@@ -56,7 +57,7 @@ function cacheElements() {
   els.totalValue = document.getElementById("totalValue");
   els.totalGain = document.getElementById("totalGain");
   els.cashValue = document.getElementById("cashValue");
-  els.quoteCount = document.getElementById("quoteCount");
+  els.change30d = document.getElementById("change30d");
   els.donutTotal = document.getElementById("donutTotal");
   els.allocationDonut = document.getElementById("allocationDonut");
   els.allocationLegend = document.getElementById("allocationLegend");
@@ -245,8 +246,6 @@ function render() {
   const rows = state.assets.map(enrichAsset);
   const total = rows.reduce((sum, row) => sum + row.valueEUR, 0);
   const cash = rows.find((row) => row.type === "cash");
-  const pricedRows = rows.filter((row) => row.type !== "cash" && row.quote);
-  const investableRows = rows.filter((row) => row.type !== "cash");
   const gainRows = rows.filter((row) => row.type !== "cash" && row.costEUR);
   const gainValue = gainRows.reduce((sum, row) => sum + (row.valueEUR - row.costEUR), 0);
   const gainCost = gainRows.reduce((sum, row) => sum + row.costEUR, 0);
@@ -255,12 +254,60 @@ function render() {
   els.totalValue.textContent = total ? formatEUR.format(total) : "--";
   els.totalGain.textContent = gainPct === null ? "Configurar" : `${formatEUR.format(gainValue)} · ${formatPercent.format(gainPct)}`;
   els.cashValue.textContent = cash && total ? `${formatEUR.format(cash.valueEUR)} · ${formatPercent.format(cash.valueEUR / total)}` : "--";
-  els.quoteCount.textContent = `${pricedRows.length}/${investableRows.length}`;
   els.donutTotal.textContent = total ? formatEUR.format(total) : "--";
 
+  render30dChange(total);
   renderStatus();
   renderDonut(rows, total);
   renderTable(rows, total);
+}
+
+function render30dChange(total) {
+  if (!total) {
+    els.change30d.textContent = "--";
+    return;
+  }
+
+  saveSnapshot(total);
+  const snapshots = loadSnapshots();
+  const now = Date.now();
+  const thirtyDaysAgo = now - 30 * 24 * 60 * 60 * 1000;
+  const oldSnap = snapshots.filter(s => s.t <= thirtyDaysAgo).pop()
+    || snapshots.filter(s => s.t < now - 24 * 60 * 60 * 1000).shift();
+
+  if (!oldSnap) {
+    els.change30d.textContent = "Sin datos";
+    els.change30d.className = "";
+    return;
+  }
+
+  const diff = total - oldSnap.v;
+  const pct = oldSnap.v > 0 ? diff / oldSnap.v : 0;
+  const sign = diff >= 0 ? "+" : "";
+  els.change30d.textContent = `${sign}${formatEUR.format(diff)} · ${sign}${formatPercent.format(pct)}`;
+  els.change30d.className = diff >= 0 ? "positive" : "negative";
+}
+
+function saveSnapshot(total) {
+  const today = new Date().toISOString().slice(0, 10);
+  const snapshots = loadSnapshots();
+  const existing = snapshots.find(s => new Date(s.t).toISOString().slice(0, 10) === today);
+  if (existing) {
+    existing.v = total;
+  } else {
+    snapshots.push({ t: Date.now(), v: total });
+  }
+  const cutoff = Date.now() - 90 * 24 * 60 * 60 * 1000;
+  const pruned = snapshots.filter(s => s.t > cutoff);
+  localStorage.setItem(SNAPSHOTS_KEY, JSON.stringify(pruned));
+}
+
+function loadSnapshots() {
+  try {
+    return JSON.parse(localStorage.getItem(SNAPSHOTS_KEY) || "[]");
+  } catch {
+    return [];
+  }
 }
 
 function renderStatus() {

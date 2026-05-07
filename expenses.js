@@ -244,7 +244,7 @@ function renderChart(rows) {
     const [y, m] = r.id.split("-").map(Number);
     const label = `${MONTH_SHORT[m - 1]} ${String(y).slice(2)}`;
     
-    labelsHTML += `<text x="${x}" y="${height - 2}" text-anchor="middle" font-size="11" fill="var(--muted)" font-family="system-ui, sans-serif" font-weight="600">${label}</text>`;
+    labelsHTML += `<text x="${x}" y="${height - 2}" text-anchor="middle" class="chart-label">${label}</text>`;
   });
 
   const svg = `

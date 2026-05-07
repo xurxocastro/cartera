@@ -445,8 +445,8 @@ function renderTable(rows, total) {
     .map((row) => {
       const weight = total > 0 ? row.valueEUR / total : 0;
       const priceText = row.currentPrice === null ? "Manual" : formatMoney(row.currentPrice, row.currency, row.priceDigits);
-      const averageText = row.averagePrice ? formatMoney(row.averagePrice, row.currency, row.priceDigits) : "Añadir";
-      const gainText = row.gainPct === null ? "Añadir" : formatPercent.format(row.gainPct);
+      const averageText = row.averagePrice ? formatMoney(row.averagePrice, row.currency, row.priceDigits) : "—";
+      const gainText = row.gainPct === null ? "—" : formatPercent.format(row.gainPct);
       const gainClass = row.gainPct === null ? "muted" : row.gainPct >= 0 ? "positive" : "negative";
       
       const change1DText = row.change1D === null ? "—" : formatPercent.format(row.change1D);

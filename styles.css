@@ -175,6 +175,15 @@ p {
   color: #202124;
 }
 
+.primary-button.small {
+  width: auto;
+  margin-top: 0;
+  min-height: 32px;
+  padding: 6px 16px;
+  font-size: 13px;
+  border-radius: 6px;
+}
+
 .primary-button:hover {
   background: #aecbfa;
 }
@@ -656,6 +665,11 @@ tbody tr:last-child td {
 
 .chart-area svg {
   /* Let inline styles dictate dimensions for horizontal scrolling */
+}
+
+.chart-area svg text {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .chart-col {

@@ -264,34 +264,41 @@ function render() {
   els.cashValue.textContent = cash && total ? `${formatEUR.format(cash.valueEUR)} · ${formatPercent.format(cash.valueEUR / total)}` : "--";
   els.donutTotal.textContent = total ? formatEUR.format(total) : "--";
 
-  render30dChange(total);
+  render30dChange(rows, total);
   renderStatus();
   renderDonut(rows, total);
   renderContinentDonut(rows, total);
   renderTable(rows, total);
 }
 
-function render30dChange(total) {
+function render30dChange(rows, total) {
   if (!total) {
     els.change30d.textContent = "--";
     return;
   }
 
-  saveSnapshot(total);
-  const snapshots = loadSnapshots();
-  const now = Date.now();
-  const thirtyDaysAgo = now - 30 * 24 * 60 * 60 * 1000;
-  const oldSnap = snapshots.filter(s => s.t <= thirtyDaysAgo).pop()
-    || snapshots.filter(s => s.t < now - 24 * 60 * 60 * 1000).shift();
+  let pastTotal = 0;
+  let hasEnoughData = false;
 
-  if (!oldSnap) {
+  for (const row of rows) {
+    if (row.type === "cash") {
+      pastTotal += row.valueEUR;
+    } else if (row.change1M !== null && row.change1M !== undefined) {
+      pastTotal += row.valueEUR / (1 + row.change1M);
+      hasEnoughData = true;
+    } else {
+      pastTotal += row.valueEUR;
+    }
+  }
+
+  if (!hasEnoughData) {
     els.change30d.textContent = "Sin datos";
     els.change30d.className = "";
     return;
   }
 
-  const diff = total - oldSnap.v;
-  const pct = oldSnap.v > 0 ? diff / oldSnap.v : 0;
+  const diff = total - pastTotal;
+  const pct = pastTotal > 0 ? diff / pastTotal : 0;
   const sign = diff >= 0 ? "+" : "";
   els.change30d.textContent = `${sign}${formatEUR.format(diff)} · ${sign}${formatPercent.format(pct)}`;
   els.change30d.className = diff >= 0 ? "positive" : "negative";
@@ -423,7 +430,7 @@ function renderTable(rows, total) {
       const change1MText = row.change1M === null ? "—" : formatPercent.format(row.change1M);
       const change1MClass = row.change1M === null ? "muted" : row.change1M >= 0 ? "positive" : "negative";
       
-      const sourceText = row.quote ? `${row.quote.source || "Fuente"} · ${formatQuoteDate(row.quote.asOf)}` : "Valor manual";
+      const sourceText = row.quote ? formatQuoteDate(row.quote.asOf) : "Valor manual";
       const nativeValueText = row.currentPrice === null ? "" : `${formatMoney(row.nativeValue, row.currency, 0)}`;
 
       return `

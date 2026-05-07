@@ -403,6 +403,12 @@ p {
   box-shadow: inset 0 0 0 1px var(--soft-line);
 }
 
+.donut svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
 .donut-center {
   position: absolute;
   inset: 29%;
@@ -641,6 +647,10 @@ tbody tr:last-child td {
 .chart-area {
   display: block;
   min-height: 180px;
+}
+
+.chart-area svg {
+  /* Let inline styles dictate dimensions for horizontal scrolling */
 }
 
 .chart-col {

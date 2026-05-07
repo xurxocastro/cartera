@@ -274,7 +274,7 @@ function renderStatus() {
     : warning
       ? state.priceError
       : `Precios cargados: ${updated}`;
-  els.fxText.textContent = `Cambio EUR: ${fxDate}`;
+  els.fxText.textContent = "";
 }
 
 function renderDonut(rows, total) {

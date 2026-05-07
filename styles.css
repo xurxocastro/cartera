@@ -1,17 +1,17 @@
 :root {
-  color-scheme: light;
-  --bg: #f6f8fb;
-  --panel: #ffffff;
-  --ink: #111827;
-  --muted: #64748b;
-  --line: #d9e1ea;
-  --soft-line: #e8edf3;
-  --teal: #0f766e;
-  --blue: #2563eb;
-  --amber: #b45309;
-  --red: #b42318;
-  --green: #15803d;
-  --shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
+  color-scheme: dark;
+  --bg: #0b0f19;
+  --panel: #131a2b;
+  --ink: #e8edf5;
+  --muted: #8899ad;
+  --line: #1e293b;
+  --soft-line: #1a2332;
+  --teal: #2dd4bf;
+  --blue: #60a5fa;
+  --amber: #fbbf24;
+  --red: #f87171;
+  --green: #4ade80;
+  --shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
 }
 
 * {
@@ -61,8 +61,8 @@ svg {
   place-items: center;
   padding: 24px;
   background:
-    linear-gradient(135deg, rgba(15, 118, 110, 0.12), transparent 34%),
-    linear-gradient(315deg, rgba(37, 99, 235, 0.12), transparent 30%),
+    linear-gradient(135deg, rgba(45, 212, 191, 0.08), transparent 34%),
+    linear-gradient(315deg, rgba(96, 165, 250, 0.08), transparent 30%),
     var(--bg);
 }
 
@@ -126,7 +126,7 @@ p {
 .form-grid label {
   display: grid;
   gap: 8px;
-  color: #334155;
+  color: var(--muted);
   font-size: 14px;
   font-weight: 700;
 }
@@ -139,14 +139,14 @@ p {
   border-radius: 8px;
   padding: 10px 12px;
   color: var(--ink);
-  background: #fff;
+  background: #0f1629;
   outline: none;
 }
 
 .login-panel input:focus,
 .form-grid input:focus {
   border-color: var(--teal);
-  box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.12);
+  box-shadow: 0 0 0 4px rgba(45, 212, 191, 0.15);
 }
 
 .login-panel label + label,
@@ -171,16 +171,16 @@ p {
 .primary-button {
   width: 100%;
   margin-top: 22px;
-  background: var(--ink);
-  color: #fff;
+  background: var(--teal);
+  color: #0b0f19;
 }
 
 .primary-button:hover {
-  background: #0f172a;
+  background: #14b8a6;
 }
 
 .ghost-button {
-  background: #fff;
+  background: var(--panel);
   border-color: var(--line);
   color: var(--ink);
 }
@@ -189,15 +189,15 @@ p {
   width: 44px;
   height: 44px;
   padding: 0;
-  background: #fff;
+  background: var(--panel);
   border-color: var(--line);
   color: var(--ink);
 }
 
 .icon-button:hover,
 .ghost-button:hover {
-  border-color: #b8c3cf;
-  background: #f8fafc;
+  border-color: #334155;
+  background: #1a2332;
 }
 
 .icon-button.small {
@@ -253,10 +253,10 @@ p {
   gap: 12px;
   margin-bottom: 18px;
   padding: 12px 14px;
-  background: #ecfdf5;
-  border: 1px solid #cce9dd;
+  background: rgba(45, 212, 191, 0.08);
+  border: 1px solid rgba(45, 212, 191, 0.15);
   border-radius: 8px;
-  color: #14532d;
+  color: var(--teal);
   font-size: 14px;
   font-weight: 700;
 }
@@ -396,7 +396,7 @@ p {
   gap: 10px;
   align-items: center;
   min-height: 28px;
-  color: #334155;
+  color: var(--ink);
   font-size: 14px;
   font-weight: 800;
 }
@@ -444,7 +444,7 @@ th {
 }
 
 td {
-  color: #1f2937;
+  color: var(--ink);
   font-weight: 700;
 }
 
@@ -473,8 +473,8 @@ tbody tr:last-child td {
   min-height: 30px;
   border-radius: 8px;
   padding: 4px 8px;
-  background: #eef2ff;
-  color: #3730a3;
+  background: rgba(96, 165, 250, 0.12);
+  color: var(--blue);
   font-size: 13px;
   font-weight: 900;
 }
@@ -498,7 +498,7 @@ tbody tr:last-child td {
 .bar-track {
   height: 8px;
   border-radius: 999px;
-  background: #edf2f7;
+  background: #1a2332;
   overflow: hidden;
 }
 
@@ -634,7 +634,7 @@ tbody tr:last-child td {
     border: 1px solid var(--soft-line);
     border-radius: 8px;
     padding: 12px;
-    background: #fff;
+    background: var(--panel);
   }
 
   td {

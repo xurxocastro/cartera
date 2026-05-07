@@ -1,0 +1,38 @@
+name: Update quotes
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "5,20,35,50 8-22 * * 1-5"
+
+permissions:
+  contents: write
+
+jobs:
+  update-quotes:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Update quote file
+        env:
+          PORTFOLIO_PASSWORD: ${{ secrets.PORTFOLIO_PASSWORD }}
+        run: node scripts/update-quotes.mjs
+
+      - name: Commit quote changes
+        run: |
+          if [[ -n "$(git status --porcelain data/quotes.enc.json)" ]]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add data/quotes.enc.json
+            git commit -m "Update market quotes"
+            git push
+          else
+            echo "No quote changes"
+          fi

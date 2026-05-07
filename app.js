@@ -371,7 +371,7 @@ function renderDonut(rows, total) {
     const offset = 25 - cumulativePct;
     cumulativePct += pct;
     
-    return `<circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="${COLORS[index % COLORS.length]}" stroke-width="8" stroke-dasharray="${pct} ${100 - pct}" stroke-dashoffset="${offset}"><title>${escapeHtml(row.name)}: ${formatEUR.format(row.valueEUR)} (${formatPercent.format(pct / 100)})</title></circle>`;
+    return `<circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="${COLORS[index % COLORS.length]}" stroke-width="32" stroke-dasharray="${pct} ${100 - pct}" stroke-dashoffset="${offset}" style="stroke-linecap: butt;"><title>${escapeHtml(row.name)}: ${formatEUR.format(row.valueEUR)} (${formatPercent.format(pct / 100)})</title></circle>`;
   });
 
   const svgHTML = slices.length 
@@ -411,7 +411,7 @@ function renderContinentDonut(rows, total) {
     const offset = 25 - cumulativePct;
     cumulativePct += pct;
     
-    return `<circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="${COLORS[index % COLORS.length]}" stroke-width="8" stroke-dasharray="${pct} ${100 - pct}" stroke-dashoffset="${offset}"><title>${escapeHtml(name)}: ${formatEUR.format(val)} (${formatPercent.format(pct / 100)})</title></circle>`;
+    return `<circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="${COLORS[index % COLORS.length]}" stroke-width="32" stroke-dasharray="${pct} ${100 - pct}" stroke-dashoffset="${offset}" style="stroke-linecap: butt;"><title>${escapeHtml(name)}: ${formatEUR.format(val)} (${formatPercent.format(pct / 100)})</title></circle>`;
   });
 
   const svgHTML = slices.length 

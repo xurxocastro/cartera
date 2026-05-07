@@ -305,13 +305,13 @@ function renderTable(rows) {
         <td data-label="Ingresos">
           <div class="value-cell">
             <strong>${formatEUR.format(row.incomeTotal)}</strong>
-            <small>${formatEUR.format(n(row.incomeNTT))} + ${formatEUR.format(n(row.incomeVar))}</small>
+            <span class="secondary-value">${formatEUR.format(n(row.incomeNTT))} + ${formatEUR.format(n(row.incomeVar))}</span>
           </div>
         </td>
         <td data-label="Liquidez">
           <div class="value-cell">
             <strong>${formatEUR.format(row.liquidity)}</strong>
-            <small>R${formatEUR.format(n(row.revolut))} B${formatEUR.format(n(row.otherBank))}</small>
+            <span class="secondary-value">R${formatEUR.format(n(row.revolut))} B${formatEUR.format(n(row.otherBank))}</span>
           </div>
         </td>
         <td data-label="Gastado"><span class="${spentClass}">${spentText}</span></td>

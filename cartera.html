@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#202124">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Cartera</title>
+    <link rel="stylesheet" href="styles.css?v=6">
+    <script src="app.js?v=6" defer></script>
+  </head>
+  <body>
+    <section class="login-screen" id="loginScreen" aria-labelledby="loginTitle">
+      <form class="login-panel" id="loginForm">
+        <div class="brand-mark" aria-hidden="true">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+        <h1 id="loginTitle">Cartera</h1>
+        <p class="login-copy">Acceso privado para consultar la evolución de la inversión.</p>
+
+        <label for="username">Usuario</label>
+        <input id="username" name="username" type="text" autocomplete="username" required>
+
+        <label for="password">Contraseña</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required>
+
+        <button class="primary-button" type="submit">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+            <path d="m10 17 5-5-5-5"></path>
+            <path d="M15 12H3"></path>
+          </svg>
+          Entrar
+        </button>
+        <p class="form-error" id="loginError" role="alert"></p>
+      </form>
+    </section>
+
+    <main class="app-shell hidden" id="appShell">
+      <header class="topbar">
+        <div class="topbar-left">
+          <h1>Cartera</h1>
+          <nav class="nav-tabs">
+            <a href="cartera.html" class="nav-tab active">Cartera</a>
+            <a href="expenses.html" class="nav-tab">Gastos</a>
+          </nav>
+        </div>
+      </header>
+
+
+
+      <section class="summary-grid" aria-label="Resumen de cartera">
+        <article class="metric-card">
+          <span>Total actual</span>
+          <strong id="totalValue">--</strong>
+        </article>
+        <article class="metric-card">
+          <span>Ganancia configurada</span>
+          <strong id="totalGain">--</strong>
+        </article>
+        <article class="metric-card">
+          <span>Efectivo</span>
+          <strong id="cashValue">--</strong>
+        </article>
+        <article class="metric-card">
+          <span>Últimos 30 días</span>
+          <strong id="change30d">--</strong>
+        </article>
+      </section>
+
+      <section class="portfolio-grid">
+        <aside class="sidebar">
+          <section class="allocation-panel" aria-labelledby="allocationTitle">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Distribución</p>
+                <h2 id="allocationTitle">Activo</h2>
+              </div>
+            </div>
+            <div class="chart-flex">
+              <div class="donut" id="allocationDonut" role="img" aria-label="Distribución por activo"></div>
+              <div class="legend-list" id="allocationLegend"></div>
+            </div>
+          </section>
+
+          <section class="allocation-panel" aria-labelledby="continentTitle">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Distribución</p>
+                <h2 id="continentTitle">Continente</h2>
+              </div>
+            </div>
+            <div class="chart-flex">
+              <div class="donut" id="continentDonut" role="img" aria-label="Distribución por continente"></div>
+              <div class="legend-list" id="continentLegend"></div>
+            </div>
+          </section>
+        </aside>
+
+        <section class="holdings-panel" aria-labelledby="holdingsTitle">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Posiciones</p>
+              <h2 id="holdingsTitle">Detalle</h2>
+            </div>
+            <button type="button" class="primary-button small" id="addPositionBtn">+ Añadir</button>
+          </div>
+
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Activo</th>
+                  <th>Ticker</th>
+                  <th class="hide-mobile">País</th>
+                  <th>Valor</th>
+                  <th>Peso</th>
+                  <th>Precio</th>
+                  <th>1D</th>
+                  <th>1M</th>
+                  <th>Precio medio</th>
+                  <th>Ganancia</th>
+                </tr>
+              </thead>
+              <tbody id="holdingsBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <footer class="app-footer">
+        <div class="actions">
+          <div class="status-badge" id="statusBadge">
+            <span class="status-dot" id="statusDot"></span>
+            <span id="statusText">Cargando precios...</span>
+            <span id="fxText" style="margin-left: 8px; opacity: 0.6; font-size: 0.9em;"></span>
+          </div>
+          <div class="button-row">
+            <button class="icon-button" id="refreshButton" type="button" title="Actualizar precios" aria-label="Actualizar precios">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 2v6h-6"></path>
+                <path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path>
+                <path d="M3 22v-6h6"></path>
+                <path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path>
+              </svg>
+            </button>
+            <button class="icon-button" id="logoutButton" type="button" title="Cerrar sesión" aria-label="Cerrar sesión">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16 17 21 12 16 7"></polyline>
+                <line x1="21" y1="12" x2="9" y2="12"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </footer>
+    </main>
+
+    <dialog class="edit-dialog" id="editDialog">
+      <form method="dialog" id="assetForm">
+        <div class="dialog-heading">
+          <div>
+            <p class="eyebrow">Editar posición</p>
+            <h2 id="dialogTitle">Activo</h2>
+          </div>
+          <button class="icon-button small" value="cancel" formnovalidate type="submit" title="Cerrar" aria-label="Cerrar">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M18 6 6 18"></path>
+              <path d="m6 6 12 12"></path>
+            </svg>
+          </button>
+        </div>
+
+        <input type="hidden" id="assetId">
+        <div class="form-grid">
+          <label>
+            Nombre del activo
+            <input id="nameInput" autocomplete="off" required>
+          </label>
+          <label>
+            Ticker
+            <input id="tickerInput" autocomplete="off" required>
+          </label>
+          <label>
+            Moneda
+            <select id="currencyInput" required>
+              <option value="EUR">EUR (€)</option>
+              <option value="USD">USD ($)</option>
+              <option value="GBP">GBP (£)</option>
+              <option value="CAD">CAD (C$)</option>
+            </select>
+          </label>
+          <label>
+            Continente
+            <select id="continentInput">
+              <option value="">Ninguno</option>
+              <option value="Norteamérica">Norteamérica</option>
+              <option value="Europa">Europa</option>
+              <option value="Asia">Asia</option>
+              <option value="Latinoamérica">Latinoamérica</option>
+              <option value="Oceanía">Oceanía</option>
+              <option value="África">África</option>
+            </select>
+          </label>
+          <label>
+            País
+            <input id="countryInput" autocomplete="off" placeholder="Ej. EE. UU.">
+          </label>
+          <label>
+            Símbolo fuente
+            <input id="quoteSymbolInput" autocomplete="off">
+          </label>
+          <label>
+            Valor manual en EUR (Efectivo)
+            <input id="manualValueInput" inputmode="decimal" autocomplete="off" required>
+          </label>
+        </div>
+
+        <div class="lots-section">
+          <div class="lots-header">
+            <h3>Lotes de compra</h3>
+            <button type="button" class="ghost-button small" id="addLotButton">+ Añadir</button>
+          </div>
+          <div class="lots-list" id="lotsContainer"></div>
+        </div>
+
+        <div class="dialog-actions">
+          <button class="ghost-button negative" id="deleteAssetBtn" type="button" style="color: var(--negative);">
+            <svg viewBox="0 0 24 24" aria-hidden="true" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 6h18"></path>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+            Eliminar
+          </button>
+          <button class="primary-button" value="default" type="submit">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M20 6 9 17l-5-5"></path>
+            </svg>
+            Guardar
+          </button>
+        </div>
+      </form>
+    </dialog>
+  </body>
+</html>

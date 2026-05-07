@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#202124">
+    <title>Gastos · Cartera de Xurxi</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="expenses.js" defer></script>
+  </head>
+  <body>
+    <section class="login-screen" id="loginScreen" aria-labelledby="loginTitle">
+      <form class="login-panel" id="loginForm">
+        <div class="brand-mark" aria-hidden="true">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+        <h1 id="loginTitle">Cartera</h1>
+        <p class="login-copy">Acceso privado para consultar la evolución de la inversión.</p>
+
+        <label for="username">Usuario</label>
+        <input id="username" name="username" type="text" autocomplete="username" required>
+
+        <label for="password">Contraseña</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required>
+
+        <button class="primary-button" type="submit">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+            <path d="m10 17 5-5-5-5"></path>
+            <path d="M15 12H3"></path>
+          </svg>
+          Entrar
+        </button>
+        <p class="form-error" id="loginError" role="alert"></p>
+      </form>
+    </section>
+
+    <main class="app-shell hidden" id="appShell">
+      <header class="topbar">
+        <div>
+          <h1>Cartera de Xurxi</h1>
+        </div>
+        <nav class="nav-tabs">
+          <a href="index.html" class="nav-tab">Cartera</a>
+          <a href="expenses.html" class="nav-tab active">Gastos</a>
+        </nav>
+        <div class="topbar-actions">
+          <button class="icon-button" id="logoutButton" type="button" title="Cerrar sesión" aria-label="Cerrar sesión">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <path d="m16 17 5-5-5-5"></path>
+              <path d="M21 12H9"></path>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <section class="summary-grid" aria-label="Resumen de gastos">
+        <article class="metric-card">
+          <span>Liquidez actual</span>
+          <strong id="currentLiquidity">--</strong>
+        </article>
+        <article class="metric-card">
+          <span>Media ingresos</span>
+          <strong id="avgIncome">--</strong>
+        </article>
+        <article class="metric-card">
+          <span>Media gastos</span>
+          <strong id="avgSpent">--</strong>
+        </article>
+        <article class="metric-card">
+          <span>Total ahorrado</span>
+          <strong id="totalSaved">--</strong>
+        </article>
+      </section>
+
+      <section class="holdings-panel" aria-labelledby="expensesTitle">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Seguimiento mensual</p>
+            <h2 id="expensesTitle">Gastos por mes</h2>
+          </div>
+          <button class="primary-button" id="addMonthButton" type="button" style="width:auto;margin-top:0">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 5v14"></path>
+              <path d="M5 12h14"></path>
+            </svg>
+            Añadir mes
+          </button>
+        </div>
+
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Mes</th>
+                <th>Ingresos</th>
+                <th>Liquidez</th>
+                <th>Gastado</th>
+                <th>Ahorrado</th>
+                <th>Notas</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="expensesBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <dialog class="edit-dialog" id="expenseDialog">
+      <form method="dialog" id="expenseForm">
+        <div class="dialog-heading">
+          <div>
+            <p class="eyebrow">Datos del mes</p>
+            <h2 id="expenseDialogTitle">Nuevo mes</h2>
+          </div>
+          <button class="icon-button small" value="cancel" formnovalidate type="submit" title="Cerrar" aria-label="Cerrar">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M18 6 6 18"></path>
+              <path d="m6 6 12 12"></path>
+            </svg>
+          </button>
+        </div>
+
+        <input type="hidden" id="expenseId">
+
+        <div class="form-grid">
+          <label>
+            Mes
+            <input id="expenseMonth" type="month" required>
+          </label>
+          <label>
+            Sueldo NTT
+            <input id="expenseIncomeNTT" inputmode="decimal" autocomplete="off" placeholder="Ej. 1600">
+          </label>
+          <label>
+            Ingresos extra
+            <input id="expenseIncomeVar" inputmode="decimal" autocomplete="off" placeholder="Ej. 300">
+          </label>
+          <label>
+            Notas ingresos
+            <input id="expenseIncomeNotes" autocomplete="off" placeholder="Ej. Abuela">
+          </label>
+          <label>
+            Revolut
+            <input id="expenseRevolut" inputmode="decimal" autocomplete="off" placeholder="Saldo">
+          </label>
+          <label>
+            Revolut ahorros
+            <input id="expenseRevSaved" inputmode="decimal" autocomplete="off" placeholder="Saldo">
+          </label>
+          <label>
+            Otro banco
+            <input id="expenseOtherBank" inputmode="decimal" autocomplete="off" placeholder="Saldo">
+          </label>
+          <label>
+            Efectivo
+            <input id="expenseCash" inputmode="decimal" autocomplete="off" placeholder="Saldo">
+          </label>
+          <label>
+            Extras
+            <input id="expenseExtras" autocomplete="off" placeholder="Gastos destacados">
+          </label>
+          <label>
+            Ahorrado
+            <input id="expenseSaved" inputmode="decimal" autocomplete="off" placeholder="Ej. 500">
+          </label>
+        </div>
+
+        <div class="dialog-actions">
+          <button class="ghost-button" id="deleteExpenseButton" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 6h18"></path>
+              <path d="M8 6V4h8v2"></path>
+              <path d="m19 6-1 14H6L5 6"></path>
+            </svg>
+            Eliminar
+          </button>
+          <button class="primary-button" value="default" type="submit">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M20 6 9 17l-5-5"></path>
+            </svg>
+            Guardar
+          </button>
+        </div>
+      </form>
+    </dialog>
+  </body>
+</html>

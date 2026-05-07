@@ -58,12 +58,10 @@ function cacheElements() {
   els.totalGain = document.getElementById("totalGain");
   els.cashValue = document.getElementById("cashValue");
   els.change30d = document.getElementById("change30d");
-  els.donutTotal = document.getElementById("donutTotal");
   els.allocationDonut = document.getElementById("allocationDonut");
   els.allocationLegend = document.getElementById("allocationLegend");
   els.continentDonut = document.getElementById("continentDonut");
   els.continentLegend = document.getElementById("continentLegend");
-  els.continentTotal = document.getElementById("continentTotal");
   els.holdingsBody = document.getElementById("holdingsBody");
   els.editDialog = document.getElementById("editDialog");
   els.assetForm = document.getElementById("assetForm");
@@ -287,7 +285,6 @@ function render() {
   els.totalValue.textContent = total ? formatEUR.format(total) : "--";
   els.totalGain.textContent = gainPct === null ? "Configurar" : `${formatEUR.format(gainValue)} · ${formatPercent.format(gainPct)}`;
   els.cashValue.textContent = cash && total ? `${formatEUR.format(cash.valueEUR)} · ${formatPercent.format(cash.valueEUR / total)}` : "--";
-  els.donutTotal.textContent = total ? formatEUR.format(total) : "--";
 
   render30dChange(rows, total);
   renderStatus();
@@ -423,8 +420,6 @@ function renderContinentDonut(rows, total) {
 
   els.continentDonut.style.background = "none";
   els.continentDonut.innerHTML = svgHTML;
-
-  els.continentTotal.textContent = total ? formatEUR.format(total) : "--";
 
   els.continentLegend.innerHTML = entries
     .map(([name, val], index) => {

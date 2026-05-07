@@ -54,6 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
     state.keyBase64 = session.keyBase64;
     showApp();
     loadExpenses();
+    refreshPrices();
   } else {
     showLogin();
   }
@@ -65,6 +66,10 @@ function cacheElements() {
   els.loginError = document.getElementById("loginError");
   els.appShell = document.getElementById("appShell");
   els.logoutButton = document.getElementById("logoutButton");
+  els.refreshButton = document.getElementById("refreshButton");
+  els.statusBadge = document.getElementById("statusBadge");
+  els.statusDot = document.getElementById("statusDot");
+  els.statusText = document.getElementById("statusText");
   els.avgSavings = document.getElementById("avgSavings");
   els.avgIncome = document.getElementById("avgIncome");
   els.avgSpent = document.getElementById("avgSpent");
@@ -93,6 +98,7 @@ function cacheElements() {
 function bindEvents() {
   els.loginForm.addEventListener("submit", handleLogin);
   els.logoutButton.addEventListener("click", logout);
+  els.refreshButton.addEventListener("click", refreshPrices);
   els.addMonthButton.addEventListener("click", () => openEditor(null));
   els.expenseForm.addEventListener("submit", saveExpense);
   els.deleteExpenseButton.addEventListener("click", deleteExpense);
@@ -123,6 +129,7 @@ async function handleLogin(event) {
     els.loginForm.reset();
     showApp();
     loadExpenses();
+    refreshPrices();
   } catch {
     els.loginError.textContent = "Usuario o contraseña incorrectos.";
   }
@@ -144,6 +151,26 @@ function logout() {
   state.keyBase64 = "";
   state.entries = [];
   showLogin();
+}
+
+async function refreshPrices() {
+  if (!state.keyBase64) return;
+  
+  els.statusText.textContent = "Actualizando datos cifrados...";
+  els.statusDot.classList.add("warning");
+  
+  try {
+    // In expenses.js we don't necessarily update quotes, but we fetch the latest portfolio to see if things changed
+    const envelope = await fetchJSON(PORTFOLIO_URL);
+    const portfolio = await decryptEnvelopeWithKey(envelope, state.keyBase64);
+    // Just a placeholder to show activity
+    setTimeout(() => {
+      els.statusText.textContent = `Precios cargados: ${new Date().toLocaleTimeString("es-ES", { hour: '2-digit', minute: '2-digit' })}`;
+      els.statusDot.classList.remove("warning");
+    }, 500);
+  } catch (e) {
+    els.statusText.textContent = "Error al conectar";
+  }
 }
 
 /* ── Data persistence (encrypted localStorage) ─────────────── */

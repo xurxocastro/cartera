@@ -48,13 +48,7 @@
         </div>
       </header>
 
-      <section class="status-strip" aria-live="polite">
-        <div>
-          <span class="status-dot" id="statusDot"></span>
-          <span id="statusText">Cargando precios...</span>
-        </div>
-        <span id="fxText"></span>
-      </section>
+
 
       <section class="summary-grid" aria-label="Resumen de cartera">
         <article class="metric-card">
@@ -138,8 +132,9 @@
       <footer class="app-footer">
         <div class="actions">
           <div class="status-badge" id="statusBadge">
-            <span class="status-dot"></span>
-            <span id="statusText">Cargando...</span>
+            <span class="status-dot" id="statusDot"></span>
+            <span id="statusText">Cargando precios...</span>
+            <span id="fxText" style="margin-left: 8px; opacity: 0.6; font-size: 0.9em;"></span>
           </div>
           <div class="button-row">
             <button class="icon-button" id="refreshButton" type="button" title="Actualizar precios" aria-label="Actualizar precios">

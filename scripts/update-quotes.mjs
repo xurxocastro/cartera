@@ -25,6 +25,21 @@ const quotes = {
   ...yahooQuotes
 };
 
+const today = new Date().toISOString().slice(0, 10);
+for (const [symbol, quote] of Object.entries(quotes)) {
+  const prevQuote = previous.quotes?.[symbol];
+  const history = prevQuote?.history || [];
+  
+  if (history.length > 0 && history[history.length - 1].date === today) {
+    history[history.length - 1].price = quote.price;
+  } else {
+    history.push({ date: today, price: quote.price });
+  }
+  
+  while (history.length > 40) history.shift();
+  quote.history = history;
+}
+
 const dataChanged = JSON.stringify({ quotes, fx }) !== JSON.stringify({
   quotes: previous.quotes || {},
   fx: previous.fx || null

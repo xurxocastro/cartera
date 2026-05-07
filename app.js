@@ -416,6 +416,13 @@ function renderTable(rows, total) {
       const averageText = row.averagePrice ? formatMoney(row.averagePrice, row.currency, row.priceDigits) : "Añadir";
       const gainText = row.gainPct === null ? "Añadir" : formatPercent.format(row.gainPct);
       const gainClass = row.gainPct === null ? "muted" : row.gainPct >= 0 ? "positive" : "negative";
+      
+      const change1DText = row.change1D === null ? "—" : formatPercent.format(row.change1D);
+      const change1DClass = row.change1D === null ? "muted" : row.change1D >= 0 ? "positive" : "negative";
+      
+      const change1MText = row.change1M === null ? "—" : formatPercent.format(row.change1M);
+      const change1MClass = row.change1M === null ? "muted" : row.change1M >= 0 ? "positive" : "negative";
+      
       const sourceText = row.quote ? `${row.quote.source || "Fuente"} · ${formatQuoteDate(row.quote.asOf)}` : "Valor manual";
       const nativeValueText = row.currentPrice === null ? "" : `${formatMoney(row.nativeValue, row.currency, 0)}`;
 
@@ -442,6 +449,8 @@ function renderTable(rows, total) {
             </div>
           </td>
           <td data-label="Precio">${priceText}</td>
+          <td data-label="1D"><span class="${change1DClass}">${change1DText}</span></td>
+          <td data-label="1M"><span class="${change1MClass}">${change1MText}</span></td>
           <td data-label="Precio medio">${averageText}</td>
           <td data-label="Ganancia"><span class="${gainClass}">${gainText}</span></td>
           <td class="actions-cell" data-label="">
@@ -498,6 +507,34 @@ function enrichAsset(asset, index = state.assets.findIndex((item) => item.id ===
   const costEUR = activeQuantity && averageEUR ? activeQuantity * averageEUR : null;
   const gainPct = costEUR ? (valueEUR - costEUR) / costEUR : null;
   const buyDate = oldestDate || asset.buyDate || null;
+  
+  let change1D = null;
+  let change1M = null;
+
+  if (quote && quote.history && quote.history.length > 0) {
+    const today = new Date().toISOString().slice(0, 10);
+    const history = quote.history;
+    
+    let prev1D = null;
+    let prev1M = null;
+
+    if (history.length > 1) {
+      const index1D = history[history.length - 1].date === today ? history.length - 2 : history.length - 1;
+      if (index1D >= 0) prev1D = history[index1D].price;
+
+      if (history.length >= 20) {
+        prev1M = history[0].price;
+      }
+    }
+
+    const scale = asset.priceScale || 1;
+    if (currentPrice !== null && prev1D !== null && prev1D > 0) {
+      change1D = (currentPrice - (prev1D / scale)) / (prev1D / scale);
+    }
+    if (currentPrice !== null && prev1M !== null && prev1M > 0) {
+      change1M = (currentPrice - (prev1M / scale)) / (prev1M / scale);
+    }
+  }
 
   return {
     ...asset,
@@ -508,6 +545,8 @@ function enrichAsset(asset, index = state.assets.findIndex((item) => item.id ===
     nativeValue,
     costEUR,
     gainPct,
+    change1D,
+    change1M,
     buyDate,
     holdingTime: buyDate ? formatHoldingTime(buyDate) : "—",
     priceDigits: asset.currency === "EUR" && currentPrice && currentPrice < 10 ? 3 : 2,

@@ -135,6 +135,7 @@
               <p class="eyebrow">Posiciones</p>
               <h2 id="holdingsTitle">Detalle</h2>
             </div>
+            <button type="button" class="primary-button small" id="addPositionBtn">+ Añadir</button>
           </div>
 
           <div class="table-scroll">
@@ -151,7 +152,6 @@
                   <th>1M</th>
                   <th>Precio medio</th>
                   <th>Ganancia</th>
-                  <th></th>
                 </tr>
               </thead>
               <tbody id="holdingsBody"></tbody>
@@ -180,6 +180,23 @@
 
         <input type="hidden" id="assetId">
         <div class="form-grid">
+          <label>
+            Nombre del activo
+            <input id="nameInput" autocomplete="off" required>
+          </label>
+          <label>
+            Ticker
+            <input id="tickerInput" autocomplete="off" required>
+          </label>
+          <label>
+            Moneda
+            <select id="currencyInput" required>
+              <option value="EUR">EUR (€)</option>
+              <option value="USD">USD ($)</option>
+              <option value="GBP">GBP (£)</option>
+              <option value="CAD">CAD (C$)</option>
+            </select>
+          </label>
           <label>
             Continente
             <select id="continentInput">
@@ -215,13 +232,12 @@
         </div>
 
         <div class="dialog-actions">
-          <button class="ghost-button" id="resetAssetButton" type="button">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
+          <button class="ghost-button negative" id="deleteAssetBtn" type="button" style="color: var(--negative);">
+            <svg viewBox="0 0 24 24" aria-hidden="true" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M3 6h18"></path>
-              <path d="M8 6V4h8v2"></path>
-              <path d="m19 6-1 14H6L5 6"></path>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
             </svg>
-            Restablecer
+            Eliminar
           </button>
           <button class="primary-button" value="default" type="submit">
             <svg viewBox="0 0 24 24" aria-hidden="true">

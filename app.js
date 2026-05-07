@@ -69,13 +69,17 @@ function cacheElements() {
   els.assetForm = document.getElementById("assetForm");
   els.dialogTitle = document.getElementById("dialogTitle");
   els.assetId = document.getElementById("assetId");
+  els.nameInput = document.getElementById("nameInput");
+  els.tickerInput = document.getElementById("tickerInput");
+  els.currencyInput = document.getElementById("currencyInput");
   els.continentInput = document.getElementById("continentInput");
   els.countryInput = document.getElementById("countryInput");
   els.manualValueInput = document.getElementById("manualValueInput");
   els.quoteSymbolInput = document.getElementById("quoteSymbolInput");
   els.lotsContainer = document.getElementById("lotsContainer");
   els.addLotButton = document.getElementById("addLotButton");
-  els.resetAssetButton = document.getElementById("resetAssetButton");
+  els.deleteAssetBtn = document.getElementById("deleteAssetBtn");
+  els.addPositionBtn = document.getElementById("addPositionBtn");
 }
 
 function bindEvents() {
@@ -84,7 +88,28 @@ function bindEvents() {
   els.logoutButton.addEventListener("click", logout);
   els.holdingsBody.addEventListener("click", handleTableClick);
   els.assetForm.addEventListener("submit", saveAsset);
-  els.resetAssetButton.addEventListener("click", resetAsset);
+  
+  if (els.addPositionBtn) {
+    els.addPositionBtn.addEventListener("click", () => openEditor("new"));
+  }
+  
+  if (els.deleteAssetBtn) {
+    els.deleteAssetBtn.addEventListener("click", () => {
+      const id = els.assetId.value;
+      if (id === "new") {
+        els.editDialog.close();
+        return;
+      }
+      
+      if (confirm("¿Estás seguro de que quieres eliminar esta posición?")) {
+        state.assets = state.assets.filter(a => a.id !== id);
+        saveAssets();
+        els.editDialog.close();
+        render();
+      }
+    });
+  }
+
   els.addLotButton.addEventListener("click", addLotRow);
   els.lotsContainer.addEventListener("click", (e) => {
     if (e.target.closest(".remove-lot")) e.target.closest(".lot-row").remove();
@@ -436,10 +461,9 @@ function renderTable(rows, total) {
       return `
         <tr>
           <td data-label="Activo">
-            <div class="asset-name">
+            <button type="button" class="asset-name" data-edit="${row.id}" style="text-align: left; background: none; border: none; padding: 0; cursor: pointer; font: inherit; color: inherit;">
               <strong>${escapeHtml(row.name)}</strong>
-              <span class="asset-source">${escapeHtml(sourceText)}</span>
-            </div>
+            </button>
           </td>
           <td data-label="Ticker"><span class="ticker-pill">${escapeHtml(row.ticker)}</span></td>
           <td class="hide-mobile" data-label="País">${escapeHtml(row.country || row.continent || "—")}</td>
@@ -460,14 +484,6 @@ function renderTable(rows, total) {
           <td data-label="1M"><span class="${change1MClass}">${change1MText}</span></td>
           <td data-label="Precio medio">${averageText}</td>
           <td data-label="Ganancia"><span class="${gainClass}">${gainText}</span></td>
-          <td class="actions-cell" data-label="">
-            <button class="icon-button small" type="button" data-edit="${row.id}" title="Editar ${escapeHtml(row.name)}" aria-label="Editar ${escapeHtml(row.name)}">
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M12 20h9"></path>
-                <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
-              </svg>
-            </button>
-          </td>
         </tr>
       `;
     })
@@ -594,13 +610,31 @@ function handleTableClick(event) {
 }
 
 function openEditor(id) {
-  const asset = state.assets.find((item) => item.id === id);
+  let asset = state.assets.find((item) => item.id === id);
+  
+  if (id === "new") {
+    asset = {
+      id: "new",
+      name: "",
+      ticker: "",
+      type: "stock",
+      currency: "EUR",
+      continent: "",
+      country: "",
+      quoteSymbol: "",
+      lots: []
+    };
+  }
+
   if (!asset) {
     return;
   }
 
   els.assetId.value = asset.id;
-  els.dialogTitle.textContent = `${asset.name} (${asset.ticker})`;
+  els.dialogTitle.textContent = id === "new" ? "Nuevo Activo" : `${asset.name} (${asset.ticker})`;
+  els.nameInput.value = asset.name || "";
+  els.tickerInput.value = asset.ticker || "";
+  els.currencyInput.value = asset.currency || "EUR";
   els.continentInput.value = asset.continent || "";
   els.countryInput.value = asset.country || "";
   els.manualValueInput.value = asset.manualValueEUR ?? "";
@@ -644,10 +678,19 @@ function addLotRow(lot = {}) {
 function saveAsset(event) {
   event.preventDefault();
   const id = els.assetId.value;
-  const asset = state.assets.find((item) => item.id === id);
-  if (!asset) {
+  
+  let asset = state.assets.find((item) => item.id === id);
+  let isNew = false;
+  if (!asset && id === "new") {
+    asset = { id: Date.now().toString(), type: "stock" };
+    isNew = true;
+  } else if (!asset) {
     return;
   }
+
+  asset.name = els.nameInput.value;
+  asset.ticker = els.tickerInput.value;
+  asset.currency = els.currencyInput.value;
 
   asset.continent = els.continentInput.value;
   asset.country = els.countryInput.value.trim();
@@ -677,20 +720,7 @@ function saveAsset(event) {
   render();
 }
 
-function resetAsset() {
-  const id = els.assetId.value;
-  const original = state.portfolio?.assets?.find((item) => item.id === id);
-  const index = state.assets.findIndex((item) => item.id === id);
 
-  if (!original || index === -1) {
-    return;
-  }
-
-  state.assets[index] = clone(original);
-  saveAssets();
-  els.editDialog.close();
-  render();
-}
 
 async function deriveKeyBase64(password, saltBase64, iterations) {
   const passwordKey = await crypto.subtle.importKey(

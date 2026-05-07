@@ -65,7 +65,7 @@ function cacheElements() {
   els.loginError = document.getElementById("loginError");
   els.appShell = document.getElementById("appShell");
   els.logoutButton = document.getElementById("logoutButton");
-  els.currentLiquidity = document.getElementById("currentLiquidity");
+  els.avgSavings = document.getElementById("avgSavings");
   els.avgIncome = document.getElementById("avgIncome");
   els.avgSpent = document.getElementById("avgSpent");
   els.totalSaved = document.getElementById("totalSaved");
@@ -190,14 +190,16 @@ function enrichAll(entries) {
 }
 
 function renderSummary(rows) {
-  const latest = rows[rows.length - 1];
-  els.currentLiquidity.textContent = latest ? formatEUR.format(latest.liquidity) : "--";
-
   const incomes = rows.map(r => r.incomeTotal);
-  els.avgIncome.textContent = incomes.length ? formatEUR.format(avg(incomes)) : "--";
+  const avgInc = incomes.length ? avg(incomes) : 0;
+  els.avgIncome.textContent = incomes.length ? formatEUR.format(avgInc) : "--";
 
   const spentValues = rows.map(r => r.spent).filter(v => v !== null && v > 0);
-  els.avgSpent.textContent = spentValues.length ? formatEUR.format(avg(spentValues)) : "--";
+  const avgSp = spentValues.length ? avg(spentValues) : 0;
+  els.avgSpent.textContent = spentValues.length ? formatEUR.format(avgSp) : "--";
+
+  const diff = avgInc - avgSp;
+  els.avgSavings.textContent = (incomes.length || spentValues.length) ? formatEUR.format(diff) : "--";
 
   const totalSaved = rows.reduce((sum, r) => sum + n(r.saved), 0);
   els.totalSaved.textContent = formatEUR.format(totalSaved);

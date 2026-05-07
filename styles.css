@@ -359,7 +359,7 @@ p {
 
 .sidebar {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: 1fr 1fr;
   gap: 18px;
 }
 
@@ -715,6 +715,10 @@ tbody tr:last-child td {
 }
 
 @media (max-width: 720px) {
+  .sidebar {
+    grid-template-columns: 1fr;
+  }
+
   .app-shell {
     padding: 18px 12px 28px;
   }
@@ -863,11 +867,7 @@ tbody tr:last-child td {
 
 /* ── Sidebar & Charts ───────────────────────────────────────── */
 
-.sidebar {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
+
 
 .lots-section {
   margin-top: 24px;

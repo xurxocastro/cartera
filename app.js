@@ -371,12 +371,12 @@ function renderDonut(rows, total) {
     const offset = 25 - cumulativePct;
     cumulativePct += pct;
     
-    return `<circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="${COLORS[index % COLORS.length]}" stroke-width="32" stroke-dasharray="${pct} ${100 - pct}" stroke-dashoffset="${offset}" style="stroke-linecap: butt;"><title>${escapeHtml(row.name)}: ${formatEUR.format(row.valueEUR)} (${formatPercent.format(pct / 100)})</title></circle>`;
+    return `<circle cx="32" cy="32" r="15.91549430918954" fill="transparent" stroke="${COLORS[index % COLORS.length]}" stroke-width="31.83098861837908" stroke-dasharray="${pct} ${100 - pct}" stroke-dashoffset="${offset}" style="stroke-linecap: butt;"><title>${escapeHtml(row.name)}: ${formatEUR.format(row.valueEUR)} (${formatPercent.format(pct / 100)})</title></circle>`;
   });
 
   const svgHTML = slices.length 
-    ? `<svg viewBox="0 0 42 42" width="100%" height="100%">${slices.join("")}</svg>`
-    : `<svg viewBox="0 0 42 42" width="100%" height="100%"><circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#d9e1ea" stroke-width="8"></circle></svg>`;
+    ? `<svg viewBox="0 0 64 64" width="100%" height="100%">${slices.join("")}</svg>`
+    : `<svg viewBox="0 0 64 64" width="100%" height="100%"><circle cx="32" cy="32" r="15.91549430918954" fill="transparent" stroke="#d9e1ea" stroke-width="31.83098861837908" style="stroke-linecap: butt;"></circle></svg>`;
 
   els.allocationDonut.style.background = "none";
   els.allocationDonut.innerHTML = svgHTML;
@@ -411,12 +411,12 @@ function renderContinentDonut(rows, total) {
     const offset = 25 - cumulativePct;
     cumulativePct += pct;
     
-    return `<circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="${COLORS[index % COLORS.length]}" stroke-width="32" stroke-dasharray="${pct} ${100 - pct}" stroke-dashoffset="${offset}" style="stroke-linecap: butt;"><title>${escapeHtml(name)}: ${formatEUR.format(val)} (${formatPercent.format(pct / 100)})</title></circle>`;
+    return `<circle cx="32" cy="32" r="15.91549430918954" fill="transparent" stroke="${COLORS[index % COLORS.length]}" stroke-width="31.83098861837908" stroke-dasharray="${pct} ${100 - pct}" stroke-dashoffset="${offset}" style="stroke-linecap: butt;"><title>${escapeHtml(name)}: ${formatEUR.format(val)} (${formatPercent.format(pct / 100)})</title></circle>`;
   });
 
   const svgHTML = slices.length 
-    ? `<svg viewBox="0 0 42 42" width="100%" height="100%">${slices.join("")}</svg>`
-    : `<svg viewBox="0 0 42 42" width="100%" height="100%"><circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#d9e1ea" stroke-width="8"></circle></svg>`;
+    ? `<svg viewBox="0 0 64 64" width="100%" height="100%">${slices.join("")}</svg>`
+    : `<svg viewBox="0 0 64 64" width="100%" height="100%"><circle cx="32" cy="32" r="15.91549430918954" fill="transparent" stroke="#d9e1ea" stroke-width="31.83098861837908" style="stroke-linecap: butt;"></circle></svg>`;
 
   els.continentDonut.style.background = "none";
   els.continentDonut.innerHTML = svgHTML;

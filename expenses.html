@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#202124">
     <title>Gastos · Cartera</title>
-    <link rel="stylesheet" href="styles.css?v=3">
-    <script src="expenses.js?v=3" defer></script>
+    <link rel="stylesheet" href="styles.css?v=4">
+    <script src="expenses.js?v=4" defer></script>
   </head>
   <body>
     <section class="login-screen" id="loginScreen" aria-labelledby="loginTitle">
@@ -39,13 +39,13 @@
 
     <main class="app-shell hidden" id="appShell">
       <header class="topbar">
-        <div>
+        <div class="topbar-left">
           <h1>Cartera</h1>
+          <nav class="nav-tabs">
+            <a href="index.html" class="nav-tab">Cartera</a>
+            <a href="expenses.html" class="nav-tab active">Gastos</a>
+          </nav>
         </div>
-        <nav class="nav-tabs">
-          <a href="index.html" class="nav-tab">Cartera</a>
-          <a href="expenses.html" class="nav-tab active">Gastos</a>
-        </nav>
       </header>
 
       <section class="summary-grid" aria-label="Resumen de gastos">

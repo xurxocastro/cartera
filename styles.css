@@ -1,17 +1,17 @@
 :root {
   color-scheme: dark;
-  --bg: #0b0f19;
-  --panel: #131a2b;
-  --ink: #e8edf5;
-  --muted: #8899ad;
-  --line: #1e293b;
-  --soft-line: #1a2332;
-  --teal: #2dd4bf;
-  --blue: #60a5fa;
-  --amber: #fbbf24;
-  --red: #f87171;
-  --green: #4ade80;
-  --shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+  --bg: #202124;
+  --panel: #303134;
+  --ink: #e8eaed;
+  --muted: #9aa0a6;
+  --line: #5f6368;
+  --soft-line: #3c4043;
+  --teal: #81c995;
+  --blue: #8ab4f8;
+  --amber: #fdd663;
+  --red: #f28b82;
+  --green: #81c995;
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 
 * {
@@ -61,8 +61,8 @@ svg {
   place-items: center;
   padding: 24px;
   background:
-    linear-gradient(135deg, rgba(45, 212, 191, 0.08), transparent 34%),
-    linear-gradient(315deg, rgba(96, 165, 250, 0.08), transparent 30%),
+    linear-gradient(135deg, rgba(129, 201, 149, 0.06), transparent 34%),
+    linear-gradient(315deg, rgba(138, 180, 248, 0.06), transparent 30%),
     var(--bg);
 }
 
@@ -139,14 +139,14 @@ p {
   border-radius: 8px;
   padding: 10px 12px;
   color: var(--ink);
-  background: #0f1629;
+  background: #292a2d;
   outline: none;
 }
 
 .login-panel input:focus,
 .form-grid input:focus {
-  border-color: var(--teal);
-  box-shadow: 0 0 0 4px rgba(45, 212, 191, 0.15);
+  border-color: var(--blue);
+  box-shadow: 0 0 0 4px rgba(138, 180, 248, 0.2);
 }
 
 .login-panel label + label,
@@ -171,12 +171,12 @@ p {
 .primary-button {
   width: 100%;
   margin-top: 22px;
-  background: var(--teal);
-  color: #0b0f19;
+  background: var(--blue);
+  color: #202124;
 }
 
 .primary-button:hover {
-  background: #14b8a6;
+  background: #aecbfa;
 }
 
 .ghost-button {
@@ -196,8 +196,8 @@ p {
 
 .icon-button:hover,
 .ghost-button:hover {
-  border-color: #334155;
-  background: #1a2332;
+  border-color: var(--line);
+  background: #3c4043;
 }
 
 .icon-button.small {
@@ -253,8 +253,8 @@ p {
   gap: 12px;
   margin-bottom: 18px;
   padding: 12px 14px;
-  background: rgba(45, 212, 191, 0.08);
-  border: 1px solid rgba(45, 212, 191, 0.15);
+  background: rgba(129, 201, 149, 0.08);
+  border: 1px solid rgba(129, 201, 149, 0.15);
   border-radius: 8px;
   color: var(--teal);
   font-size: 14px;
@@ -473,7 +473,7 @@ tbody tr:last-child td {
   min-height: 30px;
   border-radius: 8px;
   padding: 4px 8px;
-  background: rgba(96, 165, 250, 0.12);
+  background: rgba(138, 180, 248, 0.12);
   color: var(--blue);
   font-size: 13px;
   font-weight: 900;
@@ -498,7 +498,7 @@ tbody tr:last-child td {
 .bar-track {
   height: 8px;
   border-radius: 999px;
-  background: #1a2332;
+  background: #3c4043;
   overflow: hidden;
 }
 

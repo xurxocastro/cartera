@@ -480,9 +480,9 @@ function renderTable(rows, total) {
           <td data-label="Precio">${priceText}</td>
           <td data-label="1D"><span class="${change1DClass}">${change1DText}</span></td>
           <td data-label="1M"><span class="${change1MClass}">${change1MText}</span></td>
+          <td class="hide-mobile" data-label="Dividendo">${dividendText}</td>
           <td data-label="Precio medio">${averageText}</td>
           <td data-label="Ganancia"><span class="${gainClass}">${gainText}</span></td>
-          <td class="hide-mobile" data-label="Dividendo">${dividendText}</td>
         </tr>
       `;
     })

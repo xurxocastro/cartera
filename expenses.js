@@ -1,7 +1,7 @@
 const USERNAME = "jcastrlo";
 const AUTH_KEY = "cartera.auth.v2";
 const EXPENSES_KEY = "cartera.expenses.v3";
-const PORTFOLIO_URL = "data/portfolio.enc.json";
+const PORTFOLIO_URL = "../data/portfolio.enc.json";
 const SESSION_DAYS = 365;
 
 const MONTH_NAMES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
@@ -289,6 +289,11 @@ function renderChart(rows) {
   `;
   
   els.chartArea.innerHTML = svg;
+
+  requestAnimationFrame(() => {
+    const scroll = document.getElementById("chartScroll");
+    if (scroll) scroll.scrollLeft = scroll.scrollWidth;
+  });
 }
 
 function renderTable(rows) {
@@ -302,18 +307,10 @@ function renderTable(rows) {
     return `
       <tr>
         <td data-label="Mes"><strong>${esc(row._label)}</strong></td>
-        <td data-label="Ingresos">
-          <div class="value-cell">
-            <strong>${formatEUR.format(row.incomeTotal)}</strong>
-            <span class="secondary-value">${formatEUR.format(n(row.incomeNTT))} + ${formatEUR.format(n(row.incomeVar))}</span>
-          </div>
-        </td>
-        <td data-label="Liquidez">
-          <div class="value-cell">
-            <strong>${formatEUR.format(row.liquidity)}</strong>
-            <span class="secondary-value">R${formatEUR.format(n(row.revolut))} B${formatEUR.format(n(row.otherBank))}</span>
-          </div>
-        </td>
+        <td data-label="Ingresos"><strong>${formatEUR.format(row.incomeTotal)}</strong></td>
+        <td class="hide-mobile" data-label="Ing. principal">${formatEUR.format(n(row.incomeNTT))}</td>
+        <td class="hide-mobile" data-label="Ing. secundario">${n(row.incomeVar) ? formatEUR.format(n(row.incomeVar)) : "—"}</td>
+        <td data-label="Liquidez"><strong>${formatEUR.format(row.liquidity)}</strong></td>
         <td data-label="Gastado"><span class="${spentClass}">${spentText}</span></td>
         <td data-label="Ahorrado">${savedText}</td>
         <td data-label="Notas"><span class="notes-cell">${esc(notes) || "—"}</span></td>

@@ -199,16 +199,20 @@ async function getDividendYields(items) {
   for (const item of items) {
     try {
       const yahooSymbol = stooqToYahoo(item.quoteSymbol);
-      const url = `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${encodeURIComponent(yahooSymbol)}?modules=summaryDetail`;
+      const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(yahooSymbol)}?interval=1d&range=1d`;
       const response = await fetch(url, { headers: { "user-agent": "Mozilla/5.0" } });
-      if (!response.ok) continue;
-      const data = await response.json();
-      const raw = data.quoteSummary?.result?.[0]?.summaryDetail?.dividendYield?.raw;
-      if (Number.isFinite(raw) && raw > 0) {
-        result[item.quoteSymbol] = +(raw * 100).toFixed(2);
+      if (!response.ok) {
+        console.warn(`Yahoo dividend lookup failed for ${item.quoteSymbol} → ${yahooSymbol}: ${response.status}`);
+        continue;
       }
-    } catch {
-      // best-effort, skip on error
+      const data = await response.json();
+      const meta = data.chart?.result?.[0]?.meta;
+      const yld = meta?.trailingAnnualDividendYield;
+      if (Number.isFinite(yld) && yld > 0) {
+        result[item.quoteSymbol] = +(yld * 100).toFixed(2);
+      }
+    } catch (error) {
+      console.warn(`Yahoo dividend lookup error for ${item.quoteSymbol}: ${error.message}`);
     }
   }
   return result;

@@ -25,7 +25,8 @@ const state = {
   assets: [],
   prices: null,
   loading: false,
-  priceError: ""
+  priceError: "",
+  lastFetched: null
 };
 
 const els = {};
@@ -230,6 +231,7 @@ async function refreshPrices() {
   try {
     const envelope = await fetchEnvelope(`${QUOTES_URL}?ts=${Date.now()}`);
     state.prices = await decryptEnvelopeWithKey(envelope, state.keyBase64);
+    state.lastFetched = new Date().toISOString();
   } catch {
     state.priceError = "No se pudieron descifrar los precios; usando valores manuales.";
     state.prices = null;
@@ -349,8 +351,7 @@ function loadSnapshots() {
 }
 
 function renderStatus() {
-  const updated = state.prices?.updatedAt ? formatDateTime(state.prices.updatedAt) : "sin precios";
-  const fxDate = state.prices?.fx?.date || "sin cambio";
+  const checked = state.lastFetched ? formatDateTime(state.lastFetched) : "sin precios";
   const warning = Boolean(state.priceError);
 
   els.statusDot.classList.toggle("warning", warning || state.loading);
@@ -358,7 +359,7 @@ function renderStatus() {
     ? "Actualizando datos cifrados..."
     : warning
       ? state.priceError
-      : `Precios cargados: ${updated}`;
+      : `Precios comprobados: ${checked}`;
   els.fxText.textContent = "";
 }
 

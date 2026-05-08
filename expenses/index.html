@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#202124">
     <title>Gastos · Cartera</title>
-    <link rel="stylesheet" href="styles.css?v=6">
-    <script src="expenses.js?v=6" defer></script>
+    <link rel="stylesheet" href="../styles.css?v=6">
+    <script src="../expenses.js?v=6" defer></script>
     <meta name="robots" content="noindex, nofollow">
   </head>
   <body>
@@ -43,8 +43,9 @@
         <div class="topbar-left">
           <h1>Cartera</h1>
           <nav class="nav-tabs">
-            <a href="cartera.html" class="nav-tab">Cartera</a>
-            <a href="expenses.html" class="nav-tab active">Gastos</a>
+            <a href="../" class="nav-tab">Cartera</a>
+            <a href="../portfolio/" class="nav-tab">Portfolio</a>
+            <a href="../expenses/" class="nav-tab active">Gastos</a>
           </nav>
         </div>
       </header>
@@ -79,7 +80,7 @@
             <span class="chart-legend-item"><span class="chart-dot" style="background:var(--amber)"></span> Gastos</span>
           </div>
         </div>
-        <div class="chart-scroll">
+        <div class="chart-scroll" id="chartScroll">
           <div class="chart-area" id="chartArea"></div>
         </div>
       </section>
@@ -105,6 +106,8 @@
               <tr>
                 <th>Mes</th>
                 <th>Ingresos</th>
+                <th class="hide-mobile">Ing. principal</th>
+                <th class="hide-mobile">Ing. secundario</th>
                 <th>Liquidez</th>
                 <th>Gastado</th>
                 <th>Ahorrado</th>

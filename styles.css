@@ -702,7 +702,7 @@ tbody tr:last-child td {
   display: flex;
   gap: 16px;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 400;
   color: var(--muted);
 }
 

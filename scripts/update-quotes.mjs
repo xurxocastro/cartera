@@ -15,8 +15,11 @@ const portfolioEnvelope = JSON.parse(await readFile(portfolioPath, "utf8"));
 const portfolio = await decryptJson(portfolioEnvelope, password);
 const previous = await readPrevious(password);
 const assets = (portfolio.assets || []).filter((asset) => asset.type !== "cash" && asset.quoteSymbol);
-const stooqQuotes = await getStooqQuotes(assets.filter((asset) => (asset.quoteSource || "stooq") === "stooq"));
-const yahooQuotes = await getYahooQuotes(assets.filter((asset) => asset.quoteSource === "yahoo"));
+const stooqAssets = assets.filter((asset) => (asset.quoteSource || "stooq") === "stooq");
+const yahooAssets = assets.filter((asset) => asset.quoteSource === "yahoo");
+const stooqQuotes = await getStooqQuotes(stooqAssets);
+const yahooQuotes = await getYahooQuotes(yahooAssets);
+const stooqYields = await getDividendYields(stooqAssets);
 const fx = await getFxRates(previous.fx);
 
 const quotes = {
@@ -24,6 +27,10 @@ const quotes = {
   ...stooqQuotes,
   ...yahooQuotes
 };
+
+for (const [symbol, yieldPct] of Object.entries(stooqYields)) {
+  if (quotes[symbol]) quotes[symbol].dividendYield = yieldPct;
+}
 
 const today = new Date().toISOString().slice(0, 10);
 for (const [symbol, quote] of Object.entries(quotes)) {
@@ -139,12 +146,17 @@ async function getYahooQuotes(items) {
         continue;
       }
 
+      const dividendYield = Number.isFinite(meta.trailingAnnualDividendYield)
+        ? +(meta.trailingAnnualDividendYield * 100).toFixed(2)
+        : null;
+
       result[item.quoteSymbol] = {
         symbol: item.quoteSymbol,
         price,
         currency: meta.currency || item.currency,
         source: "Yahoo",
-        asOf: meta.regularMarketTime ? new Date(meta.regularMarketTime * 1000).toISOString() : new Date().toISOString()
+        asOf: meta.regularMarketTime ? new Date(meta.regularMarketTime * 1000).toISOString() : new Date().toISOString(),
+        ...(dividendYield !== null && { dividendYield })
       };
     } catch (error) {
       console.warn(`Yahoo quote failed: ${error.message}`);
@@ -180,6 +192,33 @@ async function getFxRates(previousFx) {
 
     throw error;
   }
+}
+
+async function getDividendYields(items) {
+  const result = {};
+  for (const item of items) {
+    try {
+      const yahooSymbol = stooqToYahoo(item.quoteSymbol);
+      const url = `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${encodeURIComponent(yahooSymbol)}?modules=summaryDetail`;
+      const response = await fetch(url, { headers: { "user-agent": "Mozilla/5.0" } });
+      if (!response.ok) continue;
+      const data = await response.json();
+      const raw = data.quoteSummary?.result?.[0]?.summaryDetail?.dividendYield?.raw;
+      if (Number.isFinite(raw) && raw > 0) {
+        result[item.quoteSymbol] = +(raw * 100).toFixed(2);
+      }
+    } catch {
+      // best-effort, skip on error
+    }
+  }
+  return result;
+}
+
+function stooqToYahoo(symbol) {
+  return symbol
+    .replace(/\//g, "-")   // BRK/B.US → BRK-B.US
+    .replace(/\.US$/, "")  // AAPL.US → AAPL
+    .replace(/\.PL$/, ".WA"); // PKN.PL → PKN.WA
 }
 
 function parseCsv(csv) {

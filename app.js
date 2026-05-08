@@ -74,7 +74,6 @@ function cacheElements() {
   els.countryInput = document.getElementById("countryInput");
   els.manualValueInput = document.getElementById("manualValueInput");
   els.quoteSymbolInput = document.getElementById("quoteSymbolInput");
-  els.dividendInput = document.getElementById("dividendInput");
   els.lotsContainer = document.getElementById("lotsContainer");
   els.addLotButton = document.getElementById("addLotButton");
   els.deleteAssetBtn = document.getElementById("deleteAssetBtn");
@@ -453,7 +452,8 @@ function renderTable(rows, total) {
       
       const sourceText = row.quote ? formatQuoteDate(row.quote.asOf) : "Valor manual";
       const nativeValueText = row.currentPrice === null ? "" : `${formatMoney(row.nativeValue, row.currency, 0)}`;
-      const dividendText = row.dividendYield != null ? formatPercent.format(row.dividendYield / 100) : "—";
+      const dividendYield = row.quote?.dividendYield ?? null;
+      const dividendText = dividendYield != null ? formatPercent.format(dividendYield / 100) : "—";
 
       return `
         <tr>
@@ -539,13 +539,12 @@ function enrichAsset(asset, index = state.assets.findIndex((item) => item.id ===
     let prev1D = null;
     let prev1M = null;
 
-    if (history.length > 1) {
-      const index1D = history[history.length - 1].date === today ? history.length - 2 : history.length - 1;
-      if (index1D >= 0) prev1D = history[index1D].price;
+    if (history.length >= 2) {
+      prev1D = history[history.length - 2].price;
+    }
 
-      if (history.length >= 20) {
-        prev1M = history[0].price;
-      }
+    if (history.length >= 20) {
+      prev1M = history[0].price;
     }
 
     const scale = asset.priceScale || 1;
@@ -637,7 +636,6 @@ function openEditor(id) {
   els.countryInput.value = asset.country || "";
   els.manualValueInput.value = asset.manualValueEUR ?? "";
   els.quoteSymbolInput.value = asset.quoteSymbol || "";
-  els.dividendInput.value = asset.dividendYield ?? "";
 
   els.lotsContainer.innerHTML = "";
   const lots = Array.isArray(asset.lots) && asset.lots.length > 0 
@@ -652,7 +650,6 @@ function openEditor(id) {
   els.continentInput.disabled = disabled;
   els.countryInput.disabled = disabled;
   els.quoteSymbolInput.disabled = disabled;
-  els.dividendInput.disabled = disabled;
   els.addLotButton.style.display = disabled ? "none" : "";
 
   els.editDialog.showModal();
@@ -696,7 +693,6 @@ function saveAsset(event) {
   asset.country = els.countryInput.value.trim();
   asset.manualValueEUR = parseOptionalNumber(els.manualValueInput.value) ?? asset.manualValueEUR;
   asset.quoteSymbol = els.quoteSymbolInput.value.trim().toUpperCase();
-  asset.dividendYield = parseOptionalNumber(els.dividendInput.value) ?? null;
 
   if (asset.type !== "cash") {
     const lotRows = els.lotsContainer.querySelectorAll(".lot-row");

@@ -443,14 +443,14 @@ p {
 
 .donut-wrap {
   position: relative;
-  width: 90px;
+  width: 150px;
   aspect-ratio: 1;
   flex-shrink: 0;
 }
 
 .donut {
-  width: 90px;
-  height: 90px;
+  width: 150px;
+  height: 150px;
   flex-shrink: 0;
   border-radius: 50%;
   background: var(--soft-line);

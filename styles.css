@@ -443,14 +443,15 @@ p {
 
 .donut-wrap {
   position: relative;
-  width: 150px;
+  width: clamp(140px, 32%, 280px);
   aspect-ratio: 1;
   flex-shrink: 0;
 }
 
 .donut {
-  width: 150px;
-  height: 150px;
+  width: clamp(140px, 32%, 280px);
+  aspect-ratio: 1;
+  height: auto;
   flex-shrink: 0;
   border-radius: 50%;
   background: var(--soft-line);
@@ -470,7 +471,8 @@ p {
 }
 
 .chart-flex .legend-list {
-  flex: 1;
+  flex: 1 1 auto;
+  min-width: 0;
   margin-top: 0;
 }
 
@@ -517,6 +519,12 @@ p {
   color: var(--ink);
   font-size: 14px;
   font-weight: 800;
+  white-space: nowrap;
+}
+
+.legend-item .legend-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .legend-color {

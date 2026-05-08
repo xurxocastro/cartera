@@ -32,6 +32,12 @@ for (const [symbol, yieldPct] of Object.entries(stooqYields)) {
   if (quotes[symbol]) quotes[symbol].dividendYield = yieldPct;
 }
 
+for (const [symbol, quote] of Object.entries(quotes)) {
+  if (quote.dividendYield == null && previous.quotes?.[symbol]?.dividendYield != null) {
+    quote.dividendYield = previous.quotes[symbol].dividendYield;
+  }
+}
+
 const today = new Date().toISOString().slice(0, 10);
 for (const [symbol, quote] of Object.entries(quotes)) {
   const prevQuote = previous.quotes?.[symbol];
@@ -146,10 +152,8 @@ async function getYahooQuotes(items) {
         continue;
       }
 
-      const dividendYield = Number.isFinite(meta.trailingAnnualDividendYield)
-        ? +(meta.trailingAnnualDividendYield * 100).toFixed(2)
-        : null;
-      console.log(`Yahoo dividend ${item.quoteSymbol}: trailingAnnualDividendYield=${meta.trailingAnnualDividendYield} → ${dividendYield}`);
+      const dividendYield = computeDividendYield(meta, price);
+      console.log(`Yahoo dividend ${item.quoteSymbol}: yield=${meta.trailingAnnualDividendYield} rate=${meta.trailingAnnualDividendRate} price=${price} → ${dividendYield}`);
 
       result[item.quoteSymbol] = {
         symbol: item.quoteSymbol,
@@ -208,16 +212,28 @@ async function getDividendYields(items) {
       }
       const data = await response.json();
       const meta = data.chart?.result?.[0]?.meta;
-      const yld = meta?.trailingAnnualDividendYield;
-      console.log(`Dividend yield ${item.quoteSymbol} → ${yahooSymbol}: trailingAnnualDividendYield=${yld}`);
-      if (Number.isFinite(yld) && yld > 0) {
-        result[item.quoteSymbol] = +(yld * 100).toFixed(2);
+      const price = Number(meta?.regularMarketPrice);
+      const yld = computeDividendYield(meta, price);
+      console.log(`Dividend yield ${item.quoteSymbol} → ${yahooSymbol}: yield=${meta?.trailingAnnualDividendYield} rate=${meta?.trailingAnnualDividendRate} price=${price} → ${yld}`);
+      if (yld != null && yld > 0) {
+        result[item.quoteSymbol] = yld;
       }
     } catch (error) {
       console.warn(`Yahoo dividend lookup error for ${item.quoteSymbol}: ${error.message}`);
     }
   }
   return result;
+}
+
+function computeDividendYield(meta, price) {
+  if (!meta) return null;
+  const yld = meta.trailingAnnualDividendYield;
+  if (Number.isFinite(yld) && yld > 0) return +(yld * 100).toFixed(2);
+  const rate = meta.trailingAnnualDividendRate;
+  if (Number.isFinite(rate) && rate > 0 && Number.isFinite(price) && price > 0) {
+    return +((rate / price) * 100).toFixed(2);
+  }
+  return null;
 }
 
 function stooqToYahoo(symbol) {

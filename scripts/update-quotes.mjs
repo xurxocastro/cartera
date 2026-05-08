@@ -149,6 +149,7 @@ async function getYahooQuotes(items) {
       const dividendYield = Number.isFinite(meta.trailingAnnualDividendYield)
         ? +(meta.trailingAnnualDividendYield * 100).toFixed(2)
         : null;
+      console.log(`Yahoo dividend ${item.quoteSymbol}: trailingAnnualDividendYield=${meta.trailingAnnualDividendYield} → ${dividendYield}`);
 
       result[item.quoteSymbol] = {
         symbol: item.quoteSymbol,
@@ -208,6 +209,7 @@ async function getDividendYields(items) {
       const data = await response.json();
       const meta = data.chart?.result?.[0]?.meta;
       const yld = meta?.trailingAnnualDividendYield;
+      console.log(`Dividend yield ${item.quoteSymbol} → ${yahooSymbol}: trailingAnnualDividendYield=${yld}`);
       if (Number.isFinite(yld) && yld > 0) {
         result[item.quoteSymbol] = +(yld * 100).toFixed(2);
       }
@@ -220,9 +222,16 @@ async function getDividendYields(items) {
 
 function stooqToYahoo(symbol) {
   return symbol
-    .replace(/\//g, "-")   // BRK/B.US → BRK-B.US
-    .replace(/\.US$/, "")  // AAPL.US → AAPL
-    .replace(/\.PL$/, ".WA"); // PKN.PL → PKN.WA
+    .replace(/\//g, "-")    // BRK/B.US → BRK-B.US
+    .replace(/\.US$/, "")   // AAPL.US → AAPL
+    .replace(/\.UK$/, ".L") // VOD.UK → VOD.L
+    .replace(/\.PL$/, ".WA") // PKN.PL → PKN.WA
+    .replace(/\.FR$/, ".PA") // AIR.FR → AIR.PA
+    .replace(/\.ES$/, ".MC") // SAN.ES → SAN.MC
+    .replace(/\.IT$/, ".MI") // ENI.IT → ENI.MI
+    .replace(/\.NL$/, ".AS") // ASML.NL → ASML.AS
+    .replace(/\.SE$/, ".ST") // VOLV.SE → VOLV.ST
+    .replace(/\.NO$/, ".OL"); // DNB.NO → DNB.OL
 }
 
 function parseCsv(csv) {

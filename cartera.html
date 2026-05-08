@@ -122,6 +122,7 @@
                   <th>1M</th>
                   <th>Precio medio</th>
                   <th>Ganancia</th>
+                  <th class="hide-mobile">Dividendo</th>
                 </tr>
               </thead>
               <tbody id="holdingsBody"></tbody>
@@ -211,6 +212,10 @@
           <label>
             Símbolo fuente
             <input id="quoteSymbolInput" autocomplete="off">
+          </label>
+          <label>
+            Dividendo (% anual)
+            <input id="dividendInput" inputmode="decimal" autocomplete="off" placeholder="Ej. 3.5">
           </label>
           <label>
             Valor manual en EUR (Efectivo)

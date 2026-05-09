@@ -443,16 +443,18 @@ p {
 
 .donut-wrap {
   position: relative;
-  width: clamp(140px, 32%, 280px);
+  flex: 1 0 auto;
+  min-width: 120px;
+  max-width: 280px;
   aspect-ratio: 1;
-  flex-shrink: 0;
 }
 
 .donut {
-  width: clamp(140px, 32%, 280px);
+  flex: 1 0 auto;
+  min-width: 120px;
+  max-width: 280px;
   aspect-ratio: 1;
   height: auto;
-  flex-shrink: 0;
   border-radius: 50%;
   background: var(--soft-line);
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
@@ -471,9 +473,15 @@ p {
 }
 
 .chart-flex .legend-list {
-  flex: 1 1 auto;
+  flex: 0 0 230px;
   min-width: 0;
   margin-top: 0;
+}
+
+@media (max-width: 720px) {
+  .chart-flex .legend-list {
+    flex-basis: 180px;
+  }
 }
 
 @media (max-width: 600px) {
@@ -481,6 +489,14 @@ p {
     flex-direction: column;
     align-items: center;
     text-align: center;
+  }
+  .chart-flex .legend-list {
+    flex: 0 0 auto;
+    width: 100%;
+  }
+  .donut {
+    flex: 0 0 180px;
+    max-width: none;
   }
 }
 

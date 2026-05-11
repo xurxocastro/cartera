@@ -6,7 +6,20 @@ const QUOTES_URL = "data/quotes.enc.json";
 const SNAPSHOTS_KEY = "cartera.snapshots.v1";
 const SESSION_DAYS = 365;
 
-const COLORS = ["#0f766e", "#2563eb", "#b45309", "#7c3aed", "#15803d", "#c2410c", "#0e7490", "#475569"];
+const COLORS = [
+  "#0f766e",
+  "#2563eb",
+  "#b45309",
+  "#7c3aed",
+  "#15803d",
+  "#c2410c",
+  "#0e7490",
+  "#475569",
+  "#be123c",
+  "#ca8a04",
+  "#4338ca",
+  "#65a30d"
+];
 
 const formatEUR = new Intl.NumberFormat("es-ES", {
   style: "currency",
@@ -191,6 +204,7 @@ function showApp() {
 
 function logout() {
   localStorage.removeItem(AUTH_KEY);
+  localStorage.removeItem(PORTFOLIO_KEY);
   state.keyBase64 = "";
   state.portfolio = null;
   state.assets = [];
@@ -201,18 +215,12 @@ function logout() {
 
 function loadAssets(defaultAssets) {
   try {
-    const saved = JSON.parse(localStorage.getItem(PORTFOLIO_KEY) || "[]");
-    if (!Array.isArray(saved)) {
-      return clone(defaultAssets);
+    const saved = JSON.parse(localStorage.getItem(PORTFOLIO_KEY) || "null");
+    if (Array.isArray(saved) && saved.length > 0) {
+      return saved;
     }
-
-    return defaultAssets.map((asset) => {
-      const savedAsset = saved.find((item) => item.id === asset.id);
-      return { ...asset, ...(savedAsset || {}) };
-    });
-  } catch {
-    return clone(defaultAssets);
-  }
+  } catch {}
+  return clone(defaultAssets);
 }
 
 function saveAssets() {
@@ -527,7 +535,7 @@ function enrichAsset(asset, index = state.assets.findIndex((item) => item.id ===
     ? computedCostNative / computedQuantity 
     : safeNumber(asset.averagePrice, null);
     
-  const averageEUR = averagePrice ? convertToEUR(averagePrice, asset.currency) : null;
+  const averageEUR = averagePrice ? convertToEUR(averagePrice / (asset.priceScale || 1), asset.currency) : null;
   const costEUR = activeQuantity && averageEUR ? activeQuantity * averageEUR : null;
   const gainPct = costEUR ? (valueEUR - costEUR) / costEUR : null;
   const buyDate = oldestDate || asset.buyDate || null;

@@ -277,6 +277,8 @@ async function fetchFxData() {
 
 function render() {
   const rows = state.assets.map(enrichAsset);
+  rows.sort((a, b) => (b.valueEUR || 0) - (a.valueEUR || 0));
+  rows.forEach((row, index) => { row.color = COLORS[index % COLORS.length]; });
   const total = rows.reduce((sum, row) => sum + row.valueEUR, 0);
   const cash = rows.find((row) => row.type === "cash");
   const gainRows = rows.filter((row) => row.type !== "cash" && row.costEUR);

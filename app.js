@@ -295,7 +295,14 @@ function render() {
   const gainPct = gainCost > 0 ? gainValue / gainCost : null;
 
   els.totalValue.textContent = total ? formatEUR.format(total) : "--";
-  els.totalGain.textContent = gainPct === null ? "Configurar" : `${formatEUR.format(gainValue)} · ${formatPercent.format(gainPct)}`;
+  if (gainPct === null) {
+    els.totalGain.textContent = "Configurar";
+    els.totalGain.className = "";
+  } else {
+    const sign = gainValue >= 0 ? "+" : "";
+    els.totalGain.textContent = `${sign}${formatEUR.format(gainValue)} · ${sign}${formatPercent.format(gainPct)}`;
+    els.totalGain.className = gainValue >= 0 ? "positive" : "negative";
+  }
   els.cashValue.textContent = cash && total ? `${formatEUR.format(cash.valueEUR)} · ${formatPercent.format(cash.valueEUR / total)}` : "--";
 
   render30dChange(rows, total);

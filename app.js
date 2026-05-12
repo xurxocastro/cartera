@@ -454,6 +454,10 @@ function renderTable(rows, total) {
       const averageText = row.averagePrice ? formatMoney(row.averagePrice, row.currency, row.priceDigits) : "—";
       const gainText = row.gainPct === null ? "—" : formatPercent.format(row.gainPct);
       const gainClass = row.gainPct === null ? "muted" : row.gainPct >= 0 ? "positive" : "negative";
+      const gainEUR = row.costEUR ? row.valueEUR - row.costEUR : null;
+      const gainNative = gainEUR !== null && row.currency !== "EUR" ? convertFromEUR(gainEUR, row.currency) : null;
+      const gainEurText = gainEUR === null ? "—" : formatEUR.format(gainEUR);
+      const gainNativeText = gainNative === null ? "" : formatMoney(gainNative, row.currency, 0);
       
       const change1DText = row.change1D === null ? "—" : formatPercent.format(row.change1D);
       const change1DClass = row.change1D === null ? "muted" : row.change1D >= 0 ? "positive" : "negative";
@@ -493,6 +497,12 @@ function renderTable(rows, total) {
           <td class="hide-mobile" data-label="Dividendo">${dividendText}</td>
           <td data-label="Precio medio">${averageText}</td>
           <td data-label="Ganancia"><span class="${gainClass}">${gainText}</span></td>
+          <td data-label="Ganancia €">
+            <div class="value-cell">
+              <strong class="${gainClass}">${gainEurText}</strong>
+              <small class="${gainClass}">${gainNativeText}</small>
+            </div>
+          </td>
         </tr>
       `;
     })

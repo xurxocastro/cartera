@@ -11,10 +11,10 @@ function getSectorForAsset(asset) {
   if (asset.sector) return asset.sector;
   const name = (asset.name || "").toLowerCase();
   const ticker = (asset.ticker || "").toLowerCase();
-  if (name.includes("berkshire")) return "Financieras";
-  if (name.includes("china a") || name.includes("ishares msci")) return "ETF";
+  if (name.includes("berkshire")) return "Index";
+  if (name.includes("china a") || name.includes("ishares msci")) return "Index";
   if (name === "mpe" || ticker === "mpe") return "Industriales";
-  if (name.includes("brookfield")) return "Inmobiliario";
+  if (name.includes("brookfield")) return "Index";
   if (name.includes("bqe") || name.includes("bqe water")) return "Utilities";
   if (name.includes("northern bear") || ticker === "bear") return "Industriales";
   if (name.includes("spectra")) return "Tecnología";

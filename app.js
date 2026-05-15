@@ -217,7 +217,18 @@ function loadAssets(defaultAssets) {
   try {
     const saved = JSON.parse(localStorage.getItem(PORTFOLIO_KEY) || "null");
     if (Array.isArray(saved) && saved.length > 0) {
-      return saved;
+      // portfolio.enc.json is the source of truth for the asset list and structural
+      // fields (lots, quoteSymbol, currency, etc.). localStorage contributes any
+      // extra fields the user added via the UI, plus assets that only exist locally
+      // (e.g. a cash entry added manually in this browser).
+      const savedById = new Map(saved.map((a) => [a.id, a]));
+      const merged = defaultAssets.map((asset) => {
+        const local = savedById.get(asset.id);
+        // Encrypted wins on all shared fields; local keeps any extra UI-only fields.
+        return local ? { ...clone(local), ...clone(asset) } : clone(asset);
+      });
+      const localOnly = saved.filter((s) => !defaultAssets.some((d) => d.id === s.id));
+      return [...merged, ...localOnly];
     }
   } catch {}
   return clone(defaultAssets);

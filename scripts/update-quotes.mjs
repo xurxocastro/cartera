@@ -48,15 +48,19 @@ for (const [symbol, quote] of Object.entries(quotes)) {
   }
 }
 
-const today = new Date().toISOString().slice(0, 10);
 for (const [symbol, quote] of Object.entries(quotes)) {
   const prevQuote = previous.quotes?.[symbol];
   const history = prevQuote?.history || [];
-  
-  if (history.length > 0 && history[history.length - 1].date === today) {
+
+  // Use the quote's actual date (from Stooq/Yahoo) rather than today's UTC date.
+  // Stooq returns the last completed session close, which during market hours is
+  // yesterday's date — storing it as "today" would make prev1D == currentPrice → 0% change.
+  const quoteDate = quote.asOf ? quote.asOf.slice(0, 10) : new Date().toISOString().slice(0, 10);
+
+  if (history.length > 0 && history[history.length - 1].date === quoteDate) {
     history[history.length - 1].price = quote.price;
   } else {
-    history.push({ date: today, price: quote.price });
+    history.push({ date: quoteDate, price: quote.price });
   }
   
   while (history.length > 40) history.shift();

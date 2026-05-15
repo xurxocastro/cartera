@@ -7,6 +7,22 @@ const QUOTES_URL = "data/quotes.enc.json";
 const SNAPSHOTS_KEY = "cartera.snapshots.v1";
 const SESSION_DAYS = 365;
 
+function getSectorForAsset(asset) {
+  if (asset.sector) return asset.sector;
+  const name = (asset.name || "").toLowerCase();
+  const ticker = (asset.ticker || "").toLowerCase();
+  if (name.includes("berkshire")) return "Financieras";
+  if (name.includes("china a") || name.includes("ishares msci")) return "ETF";
+  if (name === "mpe" || ticker === "mpe") return "Industriales";
+  if (name.includes("brookfield")) return "Inmobiliario";
+  if (name.includes("bqe") || name.includes("bqe water")) return "Utilities";
+  if (name.includes("northern bear") || ticker === "bear") return "Industriales";
+  if (name.includes("spectra")) return "Tecnología";
+  if (name.includes("alpha metallurgical")) return "Materiales";
+  if (name === "tgo" || ticker === "tgo") return "Materiales";
+  return "";
+}
+
 const COLORS = [
   "#0f766e",
   "#2563eb",
@@ -77,6 +93,8 @@ function cacheElements() {
   els.allocationLegend = document.getElementById("allocationLegend");
   els.continentDonut = document.getElementById("continentDonut");
   els.continentLegend = document.getElementById("continentLegend");
+  els.sectorDonut = document.getElementById("sectorDonut");
+  els.sectorLegend = document.getElementById("sectorLegend");
   els.holdingsBody = document.getElementById("holdingsBody");
   els.editDialog = document.getElementById("editDialog");
   els.assetForm = document.getElementById("assetForm");
@@ -88,6 +106,7 @@ function cacheElements() {
   els.continentInput = document.getElementById("continentInput");
   els.countryInput = document.getElementById("countryInput");
   els.manualValueInput = document.getElementById("manualValueInput");
+  els.sectorInput = document.getElementById("sectorInput");
   els.quoteSymbolInput = document.getElementById("quoteSymbolInput");
   els.lotsContainer = document.getElementById("lotsContainer");
   els.addLotButton = document.getElementById("addLotButton");
@@ -332,6 +351,7 @@ function render() {
   renderStatus();
   renderDonut(rows, total);
   renderContinentDonut(rows, total);
+  renderSectorDonut(rows, total);
   renderTable(rows, total);
 }
 
@@ -476,6 +496,44 @@ function renderContinentDonut(rows, total) {
     .join("");
 }
 
+function renderSectorDonut(rows, total) {
+  const sectors = {};
+  for (const row of rows) {
+    if (row.type === "cash") continue;
+    const s = row.sector || "Sin sector";
+    sectors[s] = (sectors[s] || 0) + row.valueEUR;
+  }
+  const entries = Object.entries(sectors).sort((a, b) => b[1] - a[1]);
+  let cumulativePct = 0;
+  const slices = entries.map(([name, val], index) => {
+    const pct = total > 0 ? (val / total) * 100 : 0;
+    if (pct === 0) return "";
+    const offset = 25 - cumulativePct;
+    cumulativePct += pct;
+    return `<circle cx="32" cy="32" r="15.91549430918954" fill="transparent" stroke="${COLORS[index % COLORS.length]}" stroke-width="31.83098861837908" stroke-dasharray="${pct} ${100 - pct}" stroke-dashoffset="${offset}" style="stroke-linecap: butt;"><title>${escapeHtml(name)}: ${formatEUR.format(val)} (${formatPercent.format(pct / 100)})</title></circle>`;
+  });
+
+  const svgHTML = slices.length
+    ? `<svg viewBox="0 0 64 64" width="100%" height="100%">${slices.join("")}</svg>`
+    : `<svg viewBox="0 0 64 64" width="100%" height="100%"><circle cx="32" cy="32" r="15.91549430918954" fill="transparent" stroke="#d9e1ea" stroke-width="31.83098861837908" style="stroke-linecap: butt;"></circle></svg>`;
+
+  els.sectorDonut.style.background = "none";
+  els.sectorDonut.innerHTML = svgHTML;
+
+  els.sectorLegend.innerHTML = entries
+    .map(([name, val], index) => {
+      const pct = total > 0 ? val / total : 0;
+      return `
+        <div class="legend-item">
+          <span class="legend-color" style="background:${COLORS[index % COLORS.length]}"></span>
+          <span class="legend-name">${escapeHtml(name)}</span>
+          <span class="legend-value">${formatPercent.format(pct)}</span>
+        </div>
+      `;
+    })
+    .join("");
+}
+
 function renderTable(rows, total) {
   els.holdingsBody.innerHTML = rows
     .map((row) => {
@@ -509,6 +567,7 @@ function renderTable(rows, total) {
           </td>
           <td data-label="Ticker"><span class="ticker-pill">${escapeHtml(row.ticker)}</span></td>
           <td class="hide-mobile" data-label="País">${escapeHtml(row.country || row.continent || "—")}</td>
+          <td class="hide-mobile" data-label="Sector">${escapeHtml(row.sector || "—")}</td>
           <td data-label="Valor">
             <div class="value-cell">
               <strong>${formatEUR.format(row.valueEUR)}</strong>
@@ -621,7 +680,8 @@ function enrichAsset(asset, index = state.assets.findIndex((item) => item.id ===
     buyDate,
     holdingTime: buyDate ? formatHoldingTime(buyDate) : "—",
     priceDigits: asset.currency === "EUR" && currentPrice && currentPrice < 10 ? 3 : 2,
-    color: COLORS[index % COLORS.length]
+    color: COLORS[index % COLORS.length],
+    sector: getSectorForAsset(asset)
   };
 }
 
@@ -669,6 +729,7 @@ function openEditor(id) {
       currency: "EUR",
       continent: "",
       country: "",
+      sector: "",
       quoteSymbol: "",
       lots: []
     };
@@ -685,6 +746,7 @@ function openEditor(id) {
   els.currencyInput.value = asset.currency || "EUR";
   els.continentInput.value = asset.continent || "";
   els.countryInput.value = asset.country || "";
+  els.sectorInput.value = asset.sector || getSectorForAsset(asset) || "";
   els.manualValueInput.value = asset.manualValueEUR ?? "";
   els.quoteSymbolInput.value = asset.quoteSymbol || "";
 
@@ -700,6 +762,7 @@ function openEditor(id) {
   const disabled = asset.type === "cash";
   els.continentInput.disabled = disabled;
   els.countryInput.disabled = disabled;
+  els.sectorInput.disabled = disabled;
   els.quoteSymbolInput.disabled = disabled;
   els.addLotButton.style.display = disabled ? "none" : "";
 
@@ -745,6 +808,7 @@ function saveAsset(event) {
     currency: els.currencyInput.value,
     continent: els.continentInput.value,
     country: els.countryInput.value.trim(),
+    sector: els.sectorInput.value,
     quoteSymbol: els.quoteSymbolInput.value.trim().toUpperCase(),
   };
 

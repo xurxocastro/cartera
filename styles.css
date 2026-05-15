@@ -484,14 +484,16 @@ p {
   gap: 10px;
 }
 
+.chart-flex--compact .donut {
+  flex: 0 0 auto;
+  width: 100%;
+  max-width: 220px;
+  min-width: 0;
+}
+
 .chart-flex--compact .legend-list {
   flex: 0 0 auto;
   width: 100%;
-}
-
-.donut--small {
-  max-width: 130px !important;
-  min-width: 90px !important;
 }
 
 .panel-heading--compact {

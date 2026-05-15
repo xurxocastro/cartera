@@ -338,7 +338,7 @@ function render() {
 
   els.totalValue.textContent = total ? formatEUR.format(total) : "--";
   if (gainPct === null) {
-    els.totalGain.textContent = "Configurar";
+    els.totalGain.textContent = "—";
     els.totalGain.className = "";
   } else {
     const sign = gainValue >= 0 ? "+" : "";

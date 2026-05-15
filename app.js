@@ -1,6 +1,7 @@
 const USERNAME = "jcastrlo";
 const AUTH_KEY = "cartera.auth.v2";
-const PORTFOLIO_KEY = "cartera.local-overrides.v2";
+const PORTFOLIO_KEY = "cartera.local-overrides.v2"; // legacy — cleared on logout
+const USER_STATE_KEY = "cartera.user-state.v1";
 const PORTFOLIO_URL = "data/portfolio.enc.json";
 const QUOTES_URL = "data/quotes.enc.json";
 const SNAPSHOTS_KEY = "cartera.snapshots.v1";
@@ -108,14 +109,19 @@ function bindEvents() {
   if (els.deleteAssetBtn) {
     els.deleteAssetBtn.addEventListener("click", () => {
       const id = els.assetId.value;
-      if (id === "new") {
-        els.editDialog.close();
-        return;
-      }
-      
+      if (id === "new") { els.editDialog.close(); return; }
+
       if (confirm("¿Estás seguro de que quieres eliminar esta posición?")) {
-        state.assets = state.assets.filter(a => a.id !== id);
-        saveAssets();
+        const us = loadUserState();
+        const isRepo = (state.portfolio?.assets || []).some((a) => a.id === id);
+        if (isRepo) {
+          if (!us.deletedIds.includes(id)) us.deletedIds.push(id);
+          delete us.overrides[id];
+        } else {
+          us.customAssets = us.customAssets.filter((a) => a.id !== id);
+        }
+        saveUserState(us);
+        state.assets = loadAssets(state.portfolio?.assets || []);
         els.editDialog.close();
         render();
       }
@@ -204,7 +210,7 @@ function showApp() {
 
 function logout() {
   localStorage.removeItem(AUTH_KEY);
-  localStorage.removeItem(PORTFOLIO_KEY);
+  localStorage.removeItem(PORTFOLIO_KEY); // purge legacy full-array format
   state.keyBase64 = "";
   state.portfolio = null;
   state.assets = [];
@@ -213,29 +219,35 @@ function logout() {
   showLogin();
 }
 
-function loadAssets(defaultAssets) {
-  try {
-    const saved = JSON.parse(localStorage.getItem(PORTFOLIO_KEY) || "null");
-    if (Array.isArray(saved) && saved.length > 0) {
-      // portfolio.enc.json is the source of truth for the asset list and structural
-      // fields (lots, quoteSymbol, currency, etc.). localStorage contributes any
-      // extra fields the user added via the UI, plus assets that only exist locally
-      // (e.g. a cash entry added manually in this browser).
-      const savedById = new Map(saved.map((a) => [a.id, a]));
-      const merged = defaultAssets.map((asset) => {
-        const local = savedById.get(asset.id);
-        // Encrypted wins on all shared fields; local keeps any extra UI-only fields.
-        return local ? { ...clone(local), ...clone(asset) } : clone(asset);
-      });
-      const localOnly = saved.filter((s) => !defaultAssets.some((d) => d.id === s.id));
-      return [...merged, ...localOnly];
-    }
-  } catch {}
-  return clone(defaultAssets);
+// ── User-state (delta) persistence ────────────────────────────────────────────
+// Shape: { overrides: { [id]: partialAsset }, customAssets: Asset[], deletedIds: string[] }
+// portfolio.enc.json is always the base; this only stores what the user changed.
+
+function emptyUserState() {
+  return { overrides: {}, customAssets: [], deletedIds: [] };
 }
 
-function saveAssets() {
-  localStorage.setItem(PORTFOLIO_KEY, JSON.stringify(state.assets));
+function loadUserState() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(USER_STATE_KEY) || "null");
+    if (raw && typeof raw.overrides === "object") return raw;
+  } catch {}
+  return emptyUserState();
+}
+
+function saveUserState(us) {
+  localStorage.setItem(USER_STATE_KEY, JSON.stringify(us));
+}
+
+function loadAssets(baseAssets) {
+  const us = loadUserState();
+  const merged = baseAssets
+    .filter((a) => !us.deletedIds.includes(a.id))
+    .map((a) => {
+      const ov = us.overrides[a.id];
+      return ov ? { ...clone(a), ...ov } : clone(a);
+    });
+  return [...merged, ...us.customAssets.map(clone)];
 }
 
 async function refreshPrices() {
@@ -714,44 +726,55 @@ function addLotRow(lot = {}) {
 function saveAsset(event) {
   event.preventDefault();
   const id = els.assetId.value;
-  
-  let asset = state.assets.find((item) => item.id === id);
-  let isNew = false;
-  if (!asset && id === "new") {
-    asset = { id: Date.now().toString(), type: "stock" };
-    isNew = true;
-  } else if (!asset) {
-    return;
-  }
+  const us = loadUserState();
 
-  asset.name = els.nameInput.value;
-  asset.ticker = els.tickerInput.value;
-  asset.currency = els.currencyInput.value;
+  const isNew = id === "new";
+  const baseAssets = state.portfolio?.assets || [];
+  const isRepo = !isNew && baseAssets.some((a) => a.id === id);
+  const isCustom = !isNew && !isRepo;
 
-  asset.continent = els.continentInput.value;
-  asset.country = els.countryInput.value.trim();
-  asset.manualValueEUR = parseOptionalNumber(els.manualValueInput.value) ?? asset.manualValueEUR;
-  asset.quoteSymbol = els.quoteSymbolInput.value.trim().toUpperCase();
+  const existing = isNew
+    ? { id: String(Date.now()), type: "stock" }
+    : state.assets.find((a) => a.id === id);
+  if (!existing && !isNew) return;
 
-  if (asset.type !== "cash") {
+  const assetType = existing.type || "stock";
+  const fields = {
+    name: els.nameInput.value,
+    ticker: els.tickerInput.value,
+    currency: els.currencyInput.value,
+    continent: els.continentInput.value,
+    country: els.countryInput.value.trim(),
+    quoteSymbol: els.quoteSymbolInput.value.trim().toUpperCase(),
+  };
+
+  const manualVal = parseOptionalNumber(els.manualValueInput.value);
+  if (manualVal !== null) fields.manualValueEUR = manualVal;
+
+  if (assetType !== "cash") {
     const lotRows = els.lotsContainer.querySelectorAll(".lot-row");
-    asset.lots = Array.from(lotRows).map(row => {
+    fields.lots = Array.from(lotRows).map((row) => {
       const q = parseOptionalNumber(row.querySelector(".lot-quantity").value);
       const p = parseOptionalNumber(row.querySelector(".lot-price").value);
       const d = row.querySelector(".lot-date").value || "";
-      if (q !== null && q > 0) {
-        return { quantity: q, price: p, date: d };
-      }
-      return null;
+      return q !== null && q > 0 ? { quantity: q, price: p, date: d } : null;
     }).filter(Boolean);
-    
-    // Clear legacy fields to ensure enrichAsset computes from lots
-    asset.quantity = undefined;
-    asset.averagePrice = undefined;
-    asset.buyDate = undefined;
+    fields.quantity = undefined;
+    fields.averagePrice = undefined;
+    fields.buyDate = undefined;
   }
 
-  saveAssets();
+  if (isNew) {
+    us.customAssets.push({ ...existing, ...fields });
+  } else if (isRepo) {
+    us.overrides[id] = { ...(us.overrides[id] || {}), ...fields };
+  } else if (isCustom) {
+    const idx = us.customAssets.findIndex((a) => a.id === id);
+    if (idx >= 0) us.customAssets[idx] = { ...us.customAssets[idx], ...fields };
+  }
+
+  saveUserState(us);
+  state.assets = loadAssets(baseAssets);
   els.editDialog.close();
   render();
 }

@@ -539,7 +539,11 @@ function renderTable(rows, total) {
     .map((row) => {
       const weight = total > 0 ? row.valueEUR / total : 0;
       const priceText = row.currentPrice === null ? "Manual" : formatMoney(row.currentPrice, row.currency, row.priceDigits);
-      const averageText = row.averagePrice ? formatMoney(row.averagePrice, row.currency, row.priceDigits) : "—";
+      // Average price is stored in native units (e.g. pence for UK AIM). Scale
+      // to match how currentPrice is displayed so that the gain % makes sense
+      // visually (avoids "12.81 GBP avg vs 1280.74 GBP current" confusion).
+      const averageScaled = row.averagePrice ? row.averagePrice / (row.priceScale || 1) : null;
+      const averageText = averageScaled ? formatMoney(averageScaled, row.currency, row.priceDigits) : "—";
       const gainText = row.gainPct === null ? "—" : formatPercent.format(row.gainPct);
       const gainClass = row.gainPct === null ? "muted" : row.gainPct >= 0 ? "positive" : "negative";
       const gainEUR = row.costEUR ? row.valueEUR - row.costEUR : null;
@@ -645,22 +649,32 @@ function enrichAsset(asset, index = state.assets.findIndex((item) => item.id ===
   if (quote && quote.history && quote.history.length > 0) {
     const history = quote.history;
     const currentDate = quote.asOf ? quote.asOf.slice(0, 10) : new Date().toISOString().slice(0, 10);
+    const currentMs = new Date(`${currentDate}T00:00:00Z`).getTime();
+    const DAY_MS = 24 * 60 * 60 * 1000;
 
     let prev1D = null;
     let prev1M = null;
 
-    // Walk backward and pick the most recent entry strictly before the current
-    // quote's date. Avoids picking same-date duplicates or future-dated buggy
-    // entries left over by an earlier history-keying bug.
+    // 1D: most recent entry strictly before currentDate, ignored if older than
+    // ~5 calendar days (handles weekends/holidays but rejects stale Stooq
+    // prints from weeks ago that would otherwise inflate "1D" wildly).
     for (let i = history.length - 1; i >= 0; i--) {
       if (history[i].date < currentDate) {
-        prev1D = history[i].price;
+        const ageDays = (currentMs - new Date(`${history[i].date}T00:00:00Z`).getTime()) / DAY_MS;
+        if (ageDays <= 5) prev1D = history[i].price;
         break;
       }
     }
 
-    if (history.length >= 20) {
-      prev1M = history[0].price;
+    // 1M: most recent entry at least ~28 calendar days before currentDate.
+    // Previously took history[0] (the oldest stored entry, up to 40 trading
+    // days ≈ 8 weeks back), so the "1M" column was really a 1.5–2 month change.
+    const monthCutoffMs = currentMs - 28 * DAY_MS;
+    for (let i = history.length - 1; i >= 0; i--) {
+      if (new Date(`${history[i].date}T00:00:00Z`).getTime() <= monthCutoffMs) {
+        prev1M = history[i].price;
+        break;
+      }
     }
 
     const scale = asset.priceScale || 1;

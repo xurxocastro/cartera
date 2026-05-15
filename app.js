@@ -643,14 +643,20 @@ function enrichAsset(asset, index = state.assets.findIndex((item) => item.id ===
   let change1M = null;
 
   if (quote && quote.history && quote.history.length > 0) {
-    const today = new Date().toISOString().slice(0, 10);
     const history = quote.history;
-    
+    const currentDate = quote.asOf ? quote.asOf.slice(0, 10) : new Date().toISOString().slice(0, 10);
+
     let prev1D = null;
     let prev1M = null;
 
-    if (history.length >= 2) {
-      prev1D = history[history.length - 2].price;
+    // Walk backward and pick the most recent entry strictly before the current
+    // quote's date. Avoids picking same-date duplicates or future-dated buggy
+    // entries left over by an earlier history-keying bug.
+    for (let i = history.length - 1; i >= 0; i--) {
+      if (history[i].date < currentDate) {
+        prev1D = history[i].price;
+        break;
+      }
     }
 
     if (history.length >= 20) {

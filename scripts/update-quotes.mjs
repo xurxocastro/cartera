@@ -50,19 +50,25 @@ for (const [symbol, quote] of Object.entries(quotes)) {
 
 for (const [symbol, quote] of Object.entries(quotes)) {
   const prevQuote = previous.quotes?.[symbol];
-  const history = prevQuote?.history || [];
+  const prevHistory = prevQuote?.history || [];
 
   // Use the quote's actual date (from Stooq/Yahoo) rather than today's UTC date.
   // Stooq returns the last completed session close, which during market hours is
   // yesterday's date — storing it as "today" would make prev1D == currentPrice → 0% change.
   const quoteDate = quote.asOf ? quote.asOf.slice(0, 10) : new Date().toISOString().slice(0, 10);
 
-  if (history.length > 0 && history[history.length - 1].date === quoteDate) {
-    history[history.length - 1].price = quote.price;
-  } else {
-    history.push({ date: quoteDate, price: quote.price });
+  // Consolidate by date (last-write-wins), then sort chronologically. Recovers
+  // from previously stored duplicates/out-of-order entries left by older bugs.
+  const byDate = new Map();
+  for (const entry of prevHistory) {
+    if (entry && entry.date) byDate.set(entry.date, entry.price);
   }
-  
+  byDate.set(quoteDate, quote.price);
+
+  const history = [...byDate.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([date, price]) => ({ date, price }));
+
   while (history.length > 40) history.shift();
   quote.history = history;
 }

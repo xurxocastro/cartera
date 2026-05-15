@@ -416,8 +416,12 @@ p {
 
 .sidebar {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 18px;
+  grid-template-columns: 2fr 1fr;
+  gap: 14px;
+}
+
+.sidebar > .allocation-panel:first-child {
+  grid-row: span 2;
 }
 
 .allocation-panel,
@@ -478,10 +482,36 @@ p {
   margin-top: 0;
 }
 
-@media (max-width: 720px) {
-  .chart-flex .legend-list {
-    flex-basis: 180px;
-  }
+.chart-flex--compact {
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.chart-flex--compact .legend-list {
+  flex: 0 0 auto;
+  width: 100%;
+}
+
+.donut--small {
+  max-width: 100px !important;
+  min-width: 80px !important;
+}
+
+.panel-heading--compact {
+  margin-bottom: 10px;
+}
+
+.legend-list--compact .legend-item {
+  font-size: 11px;
+  min-height: auto;
+  padding: 2px 0;
+  gap: 6px;
+}
+
+.legend-list--compact .legend-color {
+  width: 9px;
+  height: 9px;
 }
 
 @media (max-width: 600px) {
@@ -838,9 +868,23 @@ tbody tr:last-child td {
   }
 }
 
+@media (max-width: 960px) {
+  .sidebar {
+    grid-template-columns: 1fr 1fr;
+  }
+  .sidebar > .allocation-panel:first-child {
+    grid-column: span 2;
+    grid-row: auto;
+  }
+}
+
 @media (max-width: 720px) {
   .sidebar {
     grid-template-columns: 1fr;
+  }
+  .sidebar > .allocation-panel:first-child {
+    grid-column: auto;
+    grid-row: auto;
   }
 
   .app-shell {

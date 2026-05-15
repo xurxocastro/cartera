@@ -86,15 +86,28 @@
           </section>
 
           <section class="allocation-panel" aria-labelledby="continentTitle">
-            <div class="panel-heading">
+            <div class="panel-heading panel-heading--compact">
               <div>
                 <p class="eyebrow">Distribución</p>
                 <h2 id="continentTitle">Continente</h2>
               </div>
             </div>
-            <div class="chart-flex">
-              <div class="donut" id="continentDonut" role="img" aria-label="Distribución por continente"></div>
-              <div class="legend-list" id="continentLegend"></div>
+            <div class="chart-flex chart-flex--compact">
+              <div class="donut donut--small" id="continentDonut" role="img" aria-label="Distribución por continente"></div>
+              <div class="legend-list legend-list--compact" id="continentLegend"></div>
+            </div>
+          </section>
+
+          <section class="allocation-panel" aria-labelledby="sectorTitle">
+            <div class="panel-heading panel-heading--compact">
+              <div>
+                <p class="eyebrow">Distribución</p>
+                <h2 id="sectorTitle">Sector</h2>
+              </div>
+            </div>
+            <div class="chart-flex chart-flex--compact">
+              <div class="donut donut--small" id="sectorDonut" role="img" aria-label="Distribución por sector"></div>
+              <div class="legend-list legend-list--compact" id="sectorLegend"></div>
             </div>
           </section>
         </aside>
@@ -115,6 +128,7 @@
                   <th>Activo</th>
                   <th>Ticker</th>
                   <th class="hide-mobile">País</th>
+                  <th class="hide-mobile">Sector</th>
                   <th>Valor</th>
                   <th>Peso</th>
                   <th>Precio</th>
@@ -209,6 +223,24 @@
           <label>
             País
             <input id="countryInput" autocomplete="off" placeholder="Ej. EE. UU.">
+          </label>
+          <label>
+            Sector
+            <select id="sectorInput">
+              <option value="">— Seleccionar —</option>
+              <option value="ETF">ETF</option>
+              <option value="Financieras">Financieras</option>
+              <option value="Inmobiliario">Inmobiliario</option>
+              <option value="Utilities">Utilities</option>
+              <option value="Industriales">Industriales</option>
+              <option value="Tecnología">Tecnología</option>
+              <option value="Materiales">Materiales</option>
+              <option value="Energía">Energía</option>
+              <option value="Salud">Salud</option>
+              <option value="Consumo discrecional">Consumo discrecional</option>
+              <option value="Consumo básico">Consumo básico</option>
+              <option value="Comunicaciones">Comunicaciones</option>
+            </select>
           </label>
           <label>
             Símbolo fuente

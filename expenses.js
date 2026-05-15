@@ -120,7 +120,7 @@ async function handleLogin(event) {
   }
 
   try {
-    const envelope = await fetchJSON(PORTFOLIO_URL);
+    const envelope = await fetchJSON(`${PORTFOLIO_URL}?ts=${Date.now()}`);
     const keyBase64 = await deriveKeyBase64(password, envelope.salt, envelope.iterations);
     await decryptEnvelopeWithKey(envelope, keyBase64);
     state.keyBase64 = keyBase64;
@@ -161,7 +161,7 @@ async function refreshPrices() {
   
   try {
     // In expenses.js we don't necessarily update quotes, but we fetch the latest portfolio to see if things changed
-    const envelope = await fetchJSON(PORTFOLIO_URL);
+    const envelope = await fetchJSON(`${PORTFOLIO_URL}?ts=${Date.now()}`);
     const portfolio = await decryptEnvelopeWithKey(envelope, state.keyBase64);
     // Just a placeholder to show activity
     setTimeout(() => {

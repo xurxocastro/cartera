@@ -142,7 +142,7 @@ async function handleLogin(event) {
   }
 
   try {
-    const envelope = await fetchEnvelope(PORTFOLIO_URL);
+    const envelope = await fetchEnvelope(`${PORTFOLIO_URL}?ts=${Date.now()}`);
     const keyBase64 = await deriveKeyBase64(password, envelope.salt, envelope.iterations);
     const portfolio = await decryptEnvelopeWithKey(envelope, keyBase64);
     state.keyBase64 = keyBase64;
@@ -166,7 +166,7 @@ async function loadPrivateData() {
 
   try {
     if (!state.portfolio) {
-      const envelope = await fetchEnvelope(PORTFOLIO_URL);
+      const envelope = await fetchEnvelope(`${PORTFOLIO_URL}?ts=${Date.now()}`);
       state.portfolio = await decryptEnvelopeWithKey(envelope, state.keyBase64);
     }
 

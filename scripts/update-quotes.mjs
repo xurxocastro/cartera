@@ -17,7 +17,17 @@ const previous = await readPrevious(password);
 const assets = (portfolio.assets || []).filter((asset) => asset.type !== "cash" && asset.quoteSymbol);
 const stooqAssets = assets.filter((asset) => (asset.quoteSource || "stooq") === "stooq");
 const yahooAssets = assets.filter((asset) => asset.quoteSource === "yahoo");
-const stooqQuotes = await getStooqQuotes(stooqAssets);
+let stooqQuotes;
+try {
+  stooqQuotes = await getStooqQuotes(stooqAssets);
+} catch (error) {
+  console.warn(`Stooq failed (${error.message}), keeping previous prices for Stooq assets`);
+  stooqQuotes = Object.fromEntries(
+    stooqAssets
+      .filter((a) => previous.quotes?.[a.quoteSymbol])
+      .map((a) => [a.quoteSymbol, previous.quotes[a.quoteSymbol]])
+  );
+}
 const yahooQuotes = await getYahooQuotes(yahooAssets);
 const stooqYields = await getDividendYields(stooqAssets);
 const fx = await getFxRates(previous.fx);
@@ -93,7 +103,7 @@ async function getStooqQuotes(items) {
 
   const symbols = items.map((item) => item.quoteSymbol).join("+");
   const url = `https://stooq.com/q/l/?s=${encodeURIComponent(symbols).replaceAll("%2B", "+")}&f=sd2t2ohlcv&h&e=csv`;
-  const response = await fetch(url);
+  const response = await fetch(url, { headers: { "user-agent": "Mozilla/5.0" } });
 
   if (!response.ok) {
     throw new Error(`Stooq returned ${response.status}`);

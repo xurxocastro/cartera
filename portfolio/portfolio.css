@@ -1,0 +1,336 @@
+/* ── Reset & base ────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg:      #f9f8f5;
+  --ink:     #1a1918;
+  --muted:   #8a8680;
+  --line:    #e4e2de;
+  --serif:   "Hanken Grotesk", ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+
+html {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  min-height: 100vh;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Nav ─────────────────────────────────────────────────────── */
+.pf-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 40px;
+  background: rgba(249, 248, 245, 0.88);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.3s;
+}
+
+.pf-nav-name {
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.pf-nav-link {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--muted);
+  text-decoration: none;
+  letter-spacing: 0.02em;
+  transition: color 0.2s;
+}
+
+.pf-nav-link:hover {
+  color: var(--ink);
+}
+
+/* ── Main ────────────────────────────────────────────────────── */
+.pf-main {
+  flex: 1;
+  padding-top: 64px;
+}
+
+/* ── Hero ────────────────────────────────────────────────────── */
+.pf-hero {
+  padding: 96px 40px 64px;
+  display: grid;
+  gap: 20px;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.pf-title {
+  font-size: clamp(56px, 9vw, 120px);
+  font-weight: 300;
+  line-height: 1.0;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+}
+
+.pf-title em {
+  font-style: italic;
+  font-weight: 300;
+}
+
+.pf-tagline {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+  max-width: 320px;
+  line-height: 1.6;
+}
+
+/* ── Photo grid ──────────────────────────────────────────────── */
+.pf-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 8px;
+  padding: 0 40px 40px;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.portfolio-photo {
+  margin: 0;
+  overflow: hidden;
+  background: var(--line);
+  cursor: zoom-in;
+  position: relative;
+  aspect-ratio: var(--ar, 3 / 4);
+  /* default span */
+  grid-column: span 6;
+}
+
+/* Landscape: full width */
+.portfolio-photo.is-landscape {
+  grid-column: span 12;
+  aspect-ratio: var(--ar, 3 / 2);
+}
+
+/* Portrait: narrower columns — alternate 5/7 pattern via nth-child */
+.portfolio-photo.is-portrait {
+  grid-column: span 5;
+  aspect-ratio: var(--ar, 3 / 4);
+}
+
+.portfolio-photo.is-portrait:nth-child(even) {
+  grid-column: span 7;
+}
+
+/* Square: half-width */
+.portfolio-photo.is-square {
+  grid-column: span 6;
+  aspect-ratio: var(--ar, 1 / 1);
+}
+
+.portfolio-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.4s ease;
+  opacity: 1;
+}
+
+.portfolio-photo:hover img {
+  transform: scale(1.04);
+  opacity: 0.92;
+}
+
+/* ── Footer ──────────────────────────────────────────────────── */
+.pf-footer {
+  border-top: 1px solid var(--line);
+  padding: 28px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.pf-footer a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.pf-footer a:hover {
+  color: var(--ink);
+}
+
+.pf-footer svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ── Lightbox ────────────────────────────────────────────────── */
+.hidden {
+  display: none !important;
+}
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(249, 248, 245, 0.96);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 32px;
+  cursor: zoom-out;
+}
+
+.lightbox-image {
+  max-width: 92vw;
+  max-height: 90vh;
+  object-fit: contain;
+  display: block;
+  cursor: default;
+}
+
+.lightbox-close,
+.lightbox-nav {
+  position: absolute;
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  padding: 0;
+}
+
+.lightbox-close:hover,
+.lightbox-nav:hover {
+  background: var(--line);
+}
+
+.lightbox-close {
+  top: 24px;
+  right: 24px;
+}
+
+.lightbox-prev {
+  left: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.lightbox-next {
+  right: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.lightbox svg {
+  width: 20px;
+  height: 20px;
+  stroke: var(--ink);
+}
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .pf-nav {
+    padding: 18px 24px;
+  }
+
+  .pf-hero {
+    padding: 72px 24px 40px;
+  }
+
+  .pf-grid {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 0 24px 32px;
+    gap: 6px;
+  }
+
+  .portfolio-photo,
+  .portfolio-photo.is-portrait,
+  .portfolio-photo.is-portrait:nth-child(even),
+  .portfolio-photo.is-square {
+    grid-column: span 1;
+  }
+
+  .portfolio-photo.is-landscape {
+    grid-column: span 2;
+  }
+
+  .pf-footer {
+    padding: 24px;
+  }
+}
+
+@media (max-width: 540px) {
+  .pf-nav {
+    padding: 16px 20px;
+  }
+
+  .pf-hero {
+    padding: 64px 20px 32px;
+  }
+
+  .pf-title {
+    letter-spacing: -0.02em;
+  }
+
+  .pf-grid {
+    grid-template-columns: 1fr;
+    padding: 0 20px 28px;
+    gap: 6px;
+  }
+
+  .portfolio-photo,
+  .portfolio-photo.is-landscape,
+  .portfolio-photo.is-portrait,
+  .portfolio-photo.is-portrait:nth-child(even),
+  .portfolio-photo.is-square {
+    grid-column: span 1;
+  }
+
+  .pf-footer {
+    padding: 20px;
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .lightbox {
+    padding: 16px;
+  }
+
+  .lightbox-close { top: 12px; right: 12px; }
+  .lightbox-prev { left: 8px; }
+  .lightbox-next { right: 8px; }
+}

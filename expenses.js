@@ -173,9 +173,22 @@ async function refreshPrices() {
   }
 }
 
-/* ── Data persistence (encrypted localStorage) ─────────────── */
+/* ── Data persistence ───────────────────────────────────────── */
 
 async function loadExpenses() {
+  // Try repo first so changes from other devices are picked up
+  try {
+    const envelope = await fetchJSON(`${PORTFOLIO_URL.replace("portfolio", "expenses")}?ts=${Date.now()}`);
+    state.entries = await decryptEnvelopeWithKey(envelope, state.keyBase64);
+    // Update local cache silently
+    const cached = await encryptWithKey(state.entries, state.keyBase64);
+    localStorage.setItem(EXPENSES_KEY, JSON.stringify(cached));
+    render();
+    return;
+  } catch {
+    // File doesn't exist yet or decryption failed — fall through to localStorage
+  }
+
   const raw = localStorage.getItem(EXPENSES_KEY);
   if (raw) {
     try {
@@ -195,6 +208,17 @@ async function loadExpenses() {
 async function persistExpenses() {
   const envelope = await encryptWithKey(state.entries, state.keyBase64);
   localStorage.setItem(EXPENSES_KEY, JSON.stringify(envelope));
+}
+
+async function syncExpensesToGithub() {
+  const envelope = await encryptWithKey(state.entries, state.keyBase64);
+  const result = await ghSync("data/expenses.enc.json", JSON.stringify(envelope), "sync: update expenses");
+  if (result === "synced") {
+    els.statusText.textContent = "Guardado en GitHub ✓";
+    setTimeout(() => {
+      els.statusText.textContent = `Precios cargados: ${new Date().toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })}`;
+    }, 3000);
+  }
 }
 
 /* ── Rendering ──────────────────────────────────────────────── */
@@ -388,6 +412,7 @@ async function saveExpense(event) {
   await persistExpenses();
   els.expenseDialog.close();
   render();
+  syncExpensesToGithub();
 }
 
 async function deleteExpense() {
@@ -397,6 +422,7 @@ async function deleteExpense() {
   await persistExpenses();
   els.expenseDialog.close();
   render();
+  syncExpensesToGithub();
 }
 
 /* ── Crypto ─────────────────────────────────────────────────── */

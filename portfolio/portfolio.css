@@ -9,7 +9,7 @@
   --bg:       #ffffff;
   --ink:      #1a1918;
   --muted:    #888480;
-  --sidebar:  260px;
+  --sidebar:  340px;
   --gap:      48px;
   --font:     "Hanken Grotesk", ui-sans-serif, system-ui, -apple-system, sans-serif;
 }
@@ -174,7 +174,7 @@ body {
 
 /* ── Responsive ──────────────────────────────────────────────── */
 @media (max-width: 1100px) {
-  :root { --sidebar: 200px; }
+  :root { --sidebar: 260px; }
   .pf-main {
     columns: 3;
     padding: 40px 40px 48px 0;

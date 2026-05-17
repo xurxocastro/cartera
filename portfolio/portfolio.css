@@ -23,6 +23,12 @@ html, body {
   min-height: 100vh;
 }
 
+/* Lenis smooth-scroll requirements */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: hidden; }
+
 /* ── Layout: sidebar + main ──────────────────────────────────── */
 body {
   display: flex;
@@ -49,10 +55,11 @@ body {
 }
 
 .pf-name {
-  font-size: 18px;
+  font-size: 27px;
   font-weight: 500;
   letter-spacing: 0.01em;
   color: var(--ink);
+  line-height: 1.15;
 }
 
 .pf-tagline {

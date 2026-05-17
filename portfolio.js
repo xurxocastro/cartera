@@ -1,5 +1,23 @@
-// Portfolio público: masonry CSS columns + lightbox
+// Portfolio público: masonry CSS columns + lightbox + smooth scroll
 document.addEventListener("DOMContentLoaded", () => {
+  // Butter-smooth scrolling (Lenis). Higher `duration` = slower, more drawn-out.
+  if (typeof Lenis !== "undefined" && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    const lenis = new Lenis({
+      duration: 1.8,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+      wheelMultiplier: 0.7,
+      touchMultiplier: 1.0,
+    });
+    function raf(time) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+    requestAnimationFrame(raf);
+    // Pause Lenis while the lightbox is open so it doesn't fight body overflow:hidden
+    window.__lenis = lenis;
+  }
+
   const grid = document.getElementById("portfolioGridPhotos");
   if (!grid) return;
 
@@ -24,6 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
     lightboxImage.src = source?.getAttribute("srcset") || img.getAttribute("src");
     lightbox.classList.remove("hidden");
     document.body.style.overflow = "hidden";
+    window.__lenis?.stop();
   }
 
   function closeLightbox() {
@@ -31,6 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
     lightboxImage.removeAttribute("src");
     currentIndex = -1;
     document.body.style.overflow = "";
+    window.__lenis?.start();
   }
 
   function showRelative(delta) {

@@ -19,8 +19,9 @@ document.addEventListener("DOMContentLoaded", () => {
     currentIndex = index;
     const img = images[index];
     if (!img) return;
-    // Prefer the original src (JPEG) over the WebP thumbnail for lightbox
-    lightboxImage.src = img.getAttribute("src");
+    // Use the optimized WebP (from <source>) for fast loading; fall back to original
+    const source = img.closest("picture")?.querySelector('source[type="image/webp"]');
+    lightboxImage.src = source?.getAttribute("srcset") || img.getAttribute("src");
     lightbox.classList.remove("hidden");
     document.body.style.overflow = "hidden";
   }

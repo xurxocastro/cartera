@@ -52,6 +52,7 @@ const formatPercent = new Intl.NumberFormat("es-ES", {
 const state = {
   keyBase64: "",
   portfolio: null,
+  portfolioMeta: null, // { version, algorithm, kdf, iterations, salt } — preserved for re-encryption
   assets: [],
   prices: null,
   loading: false,
@@ -143,6 +144,7 @@ function bindEvents() {
         state.assets = loadAssets(state.portfolio?.assets || []);
         els.editDialog.close();
         render();
+        syncPortfolioToGithub();
       }
     });
   }
@@ -172,6 +174,7 @@ async function handleLogin(event) {
     const portfolio = await decryptEnvelopeWithKey(envelope, keyBase64);
     state.keyBase64 = keyBase64;
     state.portfolio = portfolio;
+    state.portfolioMeta = { version: envelope.version, algorithm: envelope.algorithm, kdf: envelope.kdf, iterations: envelope.iterations, salt: envelope.salt };
     state.assets = loadAssets(portfolio.assets || []);
 
     const expiresAt = Date.now() + SESSION_DAYS * 24 * 60 * 60 * 1000;
@@ -193,6 +196,7 @@ async function loadPrivateData() {
     if (!state.portfolio) {
       const envelope = await fetchEnvelope(`${PORTFOLIO_URL}?ts=${Date.now()}`);
       state.portfolio = await decryptEnvelopeWithKey(envelope, state.keyBase64);
+      state.portfolioMeta = { version: envelope.version, algorithm: envelope.algorithm, kdf: envelope.kdf, iterations: envelope.iterations, salt: envelope.salt };
     }
 
     state.assets = loadAssets(state.portfolio.assets || []);
@@ -861,9 +865,44 @@ function saveAsset(event) {
   state.assets = loadAssets(baseAssets);
   els.editDialog.close();
   render();
+  syncPortfolioToGithub();
 }
 
 
+
+async function encryptWithKey(data, keyBase64) {
+  const key = await crypto.subtle.importKey("raw", base64ToBytes(keyBase64), { name: "AES-GCM", length: 256 }, false, ["encrypt"]);
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const plaintext = new TextEncoder().encode(JSON.stringify(data));
+  const ciphertext = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, plaintext);
+  return { iv: bytesToBase64(iv), ciphertext: bytesToBase64(new Uint8Array(ciphertext)) };
+}
+
+async function syncPortfolioToGithub() {
+  if (!state.keyBase64 || !state.portfolioMeta) return;
+
+  const us = loadUserState();
+  const baseAssets = state.portfolio?.assets || [];
+  const mergedAssets = baseAssets
+    .filter(a => !us.deletedIds.includes(a.id))
+    .map(a => { const ov = us.overrides[a.id]; return ov ? { ...clone(a), ...ov } : clone(a); });
+  mergedAssets.push(...us.customAssets.map(clone));
+
+  const mergedPortfolio = { ...clone(state.portfolio), assets: mergedAssets };
+  const encPart = await encryptWithKey(mergedPortfolio, state.keyBase64);
+  const envelope = { ...state.portfolioMeta, ...encPart };
+
+  const result = await ghSync("data/portfolio.enc.json", JSON.stringify(envelope), "sync: update portfolio");
+
+  if (result === "synced") {
+    state.portfolio = mergedPortfolio;
+    saveUserState(emptyUserState());
+    state.assets = loadAssets(mergedPortfolio.assets);
+    els.statusText.textContent = "Guardado en GitHub ✓";
+    setTimeout(() => renderStatus(), 3000);
+    render();
+  }
+}
 
 async function deriveKeyBase64(password, saltBase64, iterations) {
   const passwordKey = await crypto.subtle.importKey(

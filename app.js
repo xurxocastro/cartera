@@ -584,11 +584,6 @@ function renderTable(rows, total) {
               <span class="bar-track"><span class="bar-fill" style="width:${Math.max(weight * 100, 0.5)}%; background:${row.color}"></span></span>
             </div>
           </td>
-          <td data-label="Precio">${priceText}</td>
-          <td data-label="1D"><span class="${change1DClass}">${change1DText}</span></td>
-          <td data-label="1M"><span class="${change1MClass}">${change1MText}</span></td>
-          <td class="hide-mobile" data-label="Dividendo">${dividendText}</td>
-          <td data-label="Precio medio">${averageText}</td>
           <td data-label="Ganancia"><span class="${gainClass}">${gainText}</span></td>
           <td data-label="Ganancia €">
             <div class="value-cell">
@@ -596,6 +591,11 @@ function renderTable(rows, total) {
               <small class="${gainClass}">${gainNativeText}</small>
             </div>
           </td>
+          <td data-label="Precio">${priceText}</td>
+          <td data-label="1D"><span class="${change1DClass}">${change1DText}</span></td>
+          <td data-label="1M"><span class="${change1MClass}">${change1MText}</span></td>
+          <td class="hide-mobile" data-label="Dividendo">${dividendText}</td>
+          <td data-label="Precio medio">${averageText}</td>
         </tr>
       `;
     })

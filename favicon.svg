@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="12" fill="#202124"/>
+  <text x="50%" y="50%" dy="0.36em" text-anchor="middle"
+        font-family="'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+        font-size="34" font-weight="700" fill="#8ab4f8"
+        letter-spacing="-1">XC</text>
+</svg>

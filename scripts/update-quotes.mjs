@@ -106,6 +106,12 @@ async function readPrevious(secret) {
   }
 }
 
+function fetchWithTimeout(url, options = {}, ms = 15000) {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), ms);
+  return fetch(url, { ...options, signal: controller.signal }).finally(() => clearTimeout(id));
+}
+
 async function getStooqQuotes(items) {
   if (!items.length) {
     return {};
@@ -113,7 +119,7 @@ async function getStooqQuotes(items) {
 
   const symbols = items.map((item) => item.quoteSymbol).join("+");
   const url = `https://stooq.com/q/l/?s=${encodeURIComponent(symbols).replaceAll("%2B", "+")}&f=sd2t2ohlcv&h&e=csv`;
-  const response = await fetch(url, { headers: { "user-agent": "Mozilla/5.0" } });
+  const response = await fetchWithTimeout(url, { headers: { "user-agent": "Mozilla/5.0" } });
 
   if (!response.ok) {
     throw new Error(`Stooq returned ${response.status}`);
@@ -150,7 +156,7 @@ async function getYahooQuotes(items) {
   for (const item of items) {
     try {
       const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(item.quoteSymbol)}?interval=1d&range=5d`;
-      const response = await fetch(url, {
+      const response = await fetchWithTimeout(url, {
         headers: {
           "user-agent": "Mozilla/5.0"
         }
@@ -193,7 +199,7 @@ async function getYahooQuotes(items) {
 
 async function getFxRates(previousFx) {
   try {
-    const response = await fetch("https://api.frankfurter.dev/v1/latest");
+    const response = await fetchWithTimeout("https://api.frankfurter.dev/v1/latest");
     if (!response.ok) {
       throw new Error(`Frankfurter returned ${response.status}`);
     }
@@ -225,7 +231,7 @@ async function getDividendYields(items) {
     try {
       const yahooSymbol = stooqToYahoo(item.quoteSymbol);
       const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(yahooSymbol)}?interval=1d&range=1d`;
-      const response = await fetch(url, { headers: { "user-agent": "Mozilla/5.0" } });
+      const response = await fetchWithTimeout(url, { headers: { "user-agent": "Mozilla/5.0" } });
       if (!response.ok) {
         console.warn(`Yahoo dividend lookup failed for ${item.quoteSymbol} → ${yahooSymbol}: ${response.status}`);
         continue;

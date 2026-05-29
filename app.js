@@ -88,7 +88,7 @@ function cacheElements() {
   els.fxText = document.getElementById("fxText");
   els.totalValue = document.getElementById("totalValue");
   els.totalGain = document.getElementById("totalGain");
-  els.cashValue = document.getElementById("cashValue");
+  els.change1d = document.getElementById("change1d");
   els.change30d = document.getElementById("change30d");
   els.allocationDonut = document.getElementById("allocationDonut");
   els.allocationLegend = document.getElementById("allocationLegend");
@@ -334,7 +334,6 @@ function render() {
   rows.sort((a, b) => (b.valueEUR || 0) - (a.valueEUR || 0));
   rows.forEach((row, index) => { row.color = COLORS[index % COLORS.length]; });
   const total = rows.reduce((sum, row) => sum + row.valueEUR, 0);
-  const cash = rows.find((row) => row.type === "cash");
   const gainRows = rows.filter((row) => row.type !== "cash" && row.costEUR);
   const gainValue = gainRows.reduce((sum, row) => sum + (row.valueEUR - row.costEUR), 0);
   const gainCost = gainRows.reduce((sum, row) => sum + row.costEUR, 0);
@@ -349,14 +348,46 @@ function render() {
     els.totalGain.textContent = `${sign}${formatEUR.format(gainValue)} · ${sign}${formatPercent.format(gainPct)}`;
     els.totalGain.className = gainValue >= 0 ? "positive" : "negative";
   }
-  els.cashValue.textContent = cash && total ? `${formatEUR.format(cash.valueEUR)} · ${formatPercent.format(cash.valueEUR / total)}` : "--";
-
+  render1dChange(rows, total);
   render30dChange(rows, total);
   renderStatus();
   renderDonut(rows, total);
   renderContinentDonut(rows, total);
   renderSectorDonut(rows, total);
   renderTable(rows, total);
+}
+
+function render1dChange(rows, total) {
+  if (!total) {
+    els.change1d.textContent = "--";
+    return;
+  }
+
+  let pastTotal = 0;
+  let hasEnoughData = false;
+
+  for (const row of rows) {
+    if (row.type === "cash") {
+      pastTotal += row.valueEUR;
+    } else if (row.change1D !== null && row.change1D !== undefined) {
+      pastTotal += row.valueEUR / (1 + row.change1D);
+      hasEnoughData = true;
+    } else {
+      pastTotal += row.valueEUR;
+    }
+  }
+
+  if (!hasEnoughData) {
+    els.change1d.textContent = "Sin datos";
+    els.change1d.className = "";
+    return;
+  }
+
+  const diff = total - pastTotal;
+  const pct = pastTotal > 0 ? diff / pastTotal : 0;
+  const sign = diff >= 0 ? "+" : "";
+  els.change1d.textContent = `${sign}${formatEUR.format(diff)} · ${sign}${formatPercent.format(pct)}`;
+  els.change1d.className = diff >= 0 ? "positive" : "negative";
 }
 
 function render30dChange(rows, total) {
